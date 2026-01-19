@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { CircleAlert, Camera, ChevronLeft, X } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { CircleAlert } from 'lucide-react'
 import {
 	AppRoot,
 	FixedLayout,
@@ -10,21 +9,12 @@ import {
 	Textarea,
 	Button,
 	Text,
-	Select,
 	Snackbar,
-	// Placeholder,
 } from '@telegram-apps/telegram-ui'
-
-// Список категорий для выбора (ID 0 "Все" здесь не нужен)
-const categories = [
-	{ id: 1, name: 'Авто', icon: '🚗' },
-	{ id: 2, name: 'Недвижимость', icon: '🏠' },
-	{ id: 3, name: 'Работа', icon: '💼' },
-	{ id: 4, name: 'Техника', icon: '📱' },
-	{ id: 5, name: 'Одежда', icon: '👕' },
-	{ id: 6, name: 'Для дома', icon: '🛋️' },
-	{ id: 7, name: 'Услуги', icon: '🛠️' },
-];
+import { categories } from '../constants';
+import { AdCreateHeader } from '../components/AdCreateHeader'
+import { CategoriesSelect } from '../components/CategoriesSelect';
+import { ImageUploader } from '../components/ImageUploader'
 
 // Тип для хранения картинки
 interface ImageItem {
@@ -33,24 +23,22 @@ interface ImageItem {
   preview: string; // URL для отображения (blob:...)
 }
 
-const MAX_PHOTOS = 3
-
 export const CreateAdPage = () => {
-	const navigate = useNavigate()
+	const categoriesWithoutAll = categories.slice(1)
 
 	// Стейт для полей формы
 	const [title, setTitle] = useState('')
 	const [description, setDescription] = useState('')
 	const [price, setPrice] = useState('')
-	const [categoryId, setCategoryId] = useState<number>(categories[0].id)
-
-	// --- НОВОЕ: Стейт картинок ---
+	const [categoryId, setCategoryId] = useState<number>(
+		categoriesWithoutAll[0].id
+	)
 	const [images, setImages] = useState<ImageItem[]>([])
 
 	// Стейт для управления видимостью Снекбара
 	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false)
 
-	// Стейт для хранения ошибок (какие поля пустые)
+	// Стейт для хранения ошибок
 	const [errors, setErrors] = useState({
 		title: false,
 		description: false,
@@ -58,64 +46,11 @@ export const CreateAdPage = () => {
 		images: false,
 	})
 
-	// Ссылка на скрытый инпут
-	const fileInputRef = useRef<HTMLInputElement>(null)
-
-	// 1. Обработка выбора файлов
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const files = e.target.files
-
-		// Проверка, что файлы вообще выбраны
-		if (!files || files.length === 0) return
-
-		// 1. Считаем свободные слоты
-		const availableSlots = MAX_PHOTOS - images.length
-
-		// Если мест нет — выходим (на всякий случай)
-		if (availableSlots <= 0) {
-			alert('Достигнут лимит фотографий')
-			return
+	const handleImagesChange = (newImages: ImageItem[]) => {
+		setImages(newImages)
+		if (newImages.length > 0 && errors.images) {
+			setErrors(prev => ({ ...prev, images: false }))
 		}
-
-		// 2. Превращаем FileList в массив
-		const allSelectedFiles = Array.from(files)
-
-		// 3. ВАЖНО: Обрезаем массив.
-		// Если слотов 2, а выбрали 4 -> берем только первые 2.
-		const filesToProcess = allSelectedFiles.slice(0, availableSlots)
-
-		// (Опционально) Можно предупредить пользователя, если он выбрал слишком много
-		if (allSelectedFiles.length > availableSlots) {
-			// Здесь можно подключить TGUI Snackbar/Toast, но пока просто в лог
-			console.log(
-				`Выбрано ${allSelectedFiles.length}, загружено только ${availableSlots}`
-			)
-		}
-
-		const newImages: ImageItem[] = filesToProcess.map(file => ({
-			id: crypto.randomUUID(), // Или Date.now().toString() + Math.random()
-			file,
-			preview: URL.createObjectURL(file),
-		}))
-
-		setImages(prev => [...prev, ...newImages])
-
-		if (errors.images) setErrors(prev => ({ ...prev, images: false }))
-
-		// Сбрасываем инпут, чтобы можно было выбрать те же файлы, если пользователь удалит их и захочет вернуть
-		e.target.value = ''
-	}
-
-	// 2. Удаление картинки
-	const handleRemoveImage = (idToRemove: string) => {
-		setImages(prev => {
-			// Находим удаляемую картинку, чтобы очистить память
-			const imageToRemove = prev.find(img => img.id === idToRemove)
-			if (imageToRemove) {
-				URL.revokeObjectURL(imageToRemove.preview)
-			}
-			return prev.filter(img => img.id !== idToRemove)
-		})
 	}
 
 	// 3. Очистка памяти при уходе со страницы
@@ -184,177 +119,23 @@ export const CreateAdPage = () => {
 
 	return (
 		<AppRoot>
-			{/* --- 1. ФИКСИРОВАННАЯ ШАПКА --- */}
-			<FixedLayout
-				vertical='top'
-				style={{
-					padding: '12px 16px',
-					backgroundColor: 'var(--tgui--bg_color)',
-					borderBottom: '1px solid var(--tgui--secondary_bg_color)',
-					zIndex: 50,
-					display: 'flex',
-					alignItems: 'center',
-					gap: 12,
-				}}
-			>
-				{/* Кнопка НАЗАД */}
-				<Button
-					mode='plain'
-					size='l'
-					onClick={() => navigate(-1)} // Возвращает на предыдущую страницу
-					style={{
-						padding: 0,
-						width: 32,
-						height: 32,
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-					}}
-				>
-					<ChevronLeft size={28} color='var(--tgui--link_color)' />
-				</Button>
-
-				{/* Заголовок страницы */}
-				<Text weight='2' style={{ fontSize: 18 }}>
-					Новое объявление
-				</Text>
-			</FixedLayout>
+			<AdCreateHeader />
 
 			<div style={{ paddingTop: 60, paddingBottom: 80 }}>
 				<List>
 					{/* СЕКЦИЯ 1: ЧТО ПРОДАЕМ (Категория + Фото) */}
 					<Section header='Что вы продаете?'>
-						{/* 1. Сначала выбираем категорию */}
-						<Select
-							// header="Категория" // Можно убрать header внутри, так как есть заголовок секции
-							value={categoryId}
-							onChange={e => setCategoryId(Number(e.target.value))}
-						>
-							{categories.map(c => (
-								<option key={c.id} value={c.id}>
-									{c.icon} {c.name}
-								</option>
-							))}
-						</Select>
-
-						{/* 2. Сразу под ней — Фотографии */}
-						{/* Скрытый инпут */}
-						<input
-							type='file'
-							ref={fileInputRef}
-							multiple
-							accept='image/*'
-							style={{ display: 'none' }}
-							onChange={handleFileChange}
+						<CategoriesSelect
+							categories={categoriesWithoutAll}
+							currentCategoryId={categoryId}
+							onCategoryChange={id => setCategoryId(id)}
 						/>
 
-						<div
-							style={{
-								display: 'flex',
-								overflowX: 'auto',
-								padding: 12,
-								gap: 12,
-								// ДОБАВИЛИ РАМКУ ПРИ ОШИБКЕ:
-								border: errors.images
-									? '1px solid var(--tgui--destructive_text_color)'
-									: '1px solid transparent',
-								borderRadius: 16, // Скругление рамки
-								transition: 'border 0.2s',
-							}}
-							className='hide-scrollbar'
-						>
-							{/* Кнопка Добавить */}
-							<div
-								onClick={() => {
-									if (images.length < MAX_PHOTOS) fileInputRef.current?.click()
-								}}
-								style={{
-									width: 80,
-									height: 80,
-									minWidth: 80,
-									borderRadius: 12,
-									backgroundColor: 'var(--tgui--secondary_bg_color)',
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: images.length < MAX_PHOTOS ? 'pointer' : 'default',
-									opacity: images.length >= MAX_PHOTOS ? 0.5 : 1,
-								}}
-							>
-								<Camera size={28} color='var(--tgui--link_color)' />
-								<Text
-									style={{
-										fontSize: 12,
-										marginTop: 4,
-										color: 'var(--tgui--link_color)',
-									}}
-								>
-									{images.length >= MAX_PHOTOS ? 'Лимит' : 'Фото'}
-								</Text>
-								<Text
-									style={{ fontSize: 10, color: 'var(--tgui--hint_color)' }}
-								>
-									{images.length}/{MAX_PHOTOS}
-								</Text>
-							</div>
-
-							{/* Превьюшки */}
-							{images.map(img => (
-								<div
-									key={img.id}
-									style={{
-										position: 'relative',
-										width: 80,
-										height: 80,
-										minWidth: 80,
-									}}
-								>
-									<img
-										src={img.preview}
-										alt='preview'
-										style={{
-											width: '100%',
-											height: '100%',
-											objectFit: 'cover',
-											borderRadius: 12,
-										}}
-									/>
-									<div
-										onClick={() => handleRemoveImage(img.id)}
-										style={{
-											position: 'absolute',
-											top: -6,
-											right: -6,
-											width: 22,
-											height: 22,
-											backgroundColor: 'rgba(0,0,0,0.5)',
-											borderRadius: '50%',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											cursor: 'pointer',
-											backdropFilter: 'blur(4px)',
-										}}
-									>
-										<X size={14} color='#ffffff' strokeWidth={3} />
-									</div>
-								</div>
-							))}
-							{/* ТЕКСТ ОШИБКИ ДЛЯ ФОТО */}
-							{errors.images && (
-								<Text
-									style={{
-										color: 'var(--tgui--destructive_text_color)',
-										fontSize: 13,
-										padding: '0 20px 10px 20px', // Отступы как у других ошибок
-										marginTop: -4,
-									}}
-								>
-									Загрузите хотя бы одну фотографию
-								</Text>
-							)}
-						</div>
+						<ImageUploader
+							images={images}
+							error={errors.images}
+							onChange={newImages => handleImagesChange(newImages)}
+						/>
 					</Section>
 
 					{/* СЕКЦИЯ 2: ОПИСАНИЕ */}
@@ -445,17 +226,11 @@ export const CreateAdPage = () => {
 				</Button>
 			</FixedLayout>
 
-			{/* 
-				--- ВСТАВЛЯЕМ SNACKBAR В САМЫЙ КОНЕЦ --- 
-				Желательно перед </AppRoot>.
-				Компонент сам позиционируется снизу экрана.
-			*/}
 			{isSnackbarOpen && (
 				<Snackbar
 					onClose={() => setIsSnackbarOpen(false)}
 					before={<CircleAlert size={28} color='#FF3B30' />}
 					description='Проверьте выделенные поля'
-					// Чтобы он был поверх кнопки "Опубликовать", можно добавить стиль
 					style={{ zIndex: 100, marginBottom: 80 }}
 				>
 					Заполните все поля

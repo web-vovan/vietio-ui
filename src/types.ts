@@ -8,3 +8,15 @@ export interface Ad {
 	image_url?: string // Ссылка на фото. Если нет — покажем заглушку
 	created_at?: string // Дата создания
 }
+
+export interface ImageItem {
+	id: string // Уникальный ID для React key
+	file: File // Сам файл для отправки
+	preview: string // URL для отображения (blob:...)
+}
+
+export interface CategoryItem {
+	id: number
+	name: string
+	icon: string
+}

@@ -10,6 +10,7 @@ import { AdCard } from '../components/AdCard'
 import { Loader } from '../components/Loader'
 
 import { Ad } from '../types'
+import { categories } from '../constants'
 
 export const FeedPage = () => {
 	// 1. Используем хук для управления URL параметрами
@@ -166,6 +167,7 @@ export const FeedPage = () => {
 			<div style={{ paddingTop: 70, paddingBottom: 40 }}>
 				{/* --- ГОРИЗОНТАЛЬНЫЙ СПИСОК КАТЕГОРИЙ --- */}
 				<CategoriesBar
+					categories={categories}
 					currentCategoryId={currentCategoryId}
 					onCategoryChange={handleCategoryChange}
 				/>

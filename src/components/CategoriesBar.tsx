@@ -1,22 +1,14 @@
 import { Caption } from '@telegram-apps/telegram-ui'
+import { CategoryItem } from '../types'
 
 type CategoriesBarProps = {
+	categories: CategoryItem[]
 	currentCategoryId: number
 	onCategoryChange: (id: number) => void
 }
 
-const categories = [
-	{ id: 0, name: 'Все', icon: '⚡️' },
-	{ id: 1, name: 'Авто', icon: '🚗' },
-	{ id: 2, name: 'Недвиж.', icon: '🏠' },
-	{ id: 3, name: 'Работа', icon: '💼' },
-	{ id: 4, name: 'Техника', icon: '📱' },
-	{ id: 5, name: 'Одежда', icon: '👕' },
-	{ id: 6, name: 'Для дома', icon: '🛋️' },
-	{ id: 7, name: 'Услуги', icon: '🛠️' },
-]
-
 export const CategoriesBar = ({
+	categories,
 	currentCategoryId,
 	onCategoryChange,
 }: CategoriesBarProps) => {
