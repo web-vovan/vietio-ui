@@ -14,6 +14,7 @@ import { PublishButton } from '../components/PublishButton'
 import { AdTitleField } from '../components/AdTitleField'
 import { AdDescriptionField } from '../components/AdDescriptionField'
 import { AdPriceField } from '../components/AdPriceField'
+import { useNavigate } from 'react-router-dom';
 
 // Тип для хранения картинки
 interface ImageItem {
@@ -23,6 +24,8 @@ interface ImageItem {
 }
 
 export const CreateAdPage = () => {
+	const navigate = useNavigate()
+
 	const categoriesWithoutAll = categories.slice(1)
 
 	const [title, setTitle] = useState('')
@@ -39,6 +42,7 @@ export const CreateAdPage = () => {
 		price: false,
 		images: false,
 	})
+	const [isLoading, setIsLoading] = useState(false)
 
 	const handleImagesChange = (newImages: ImageItem[]) => {
 		setImages(newImages)
@@ -69,7 +73,7 @@ export const CreateAdPage = () => {
 		}
 	}, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-	const handleSave = () => {
+	const handleSave = async () => {
 		const rawPrice = price.replace(/\s/g, '')
 
 		const newErrors = {
@@ -85,24 +89,45 @@ export const CreateAdPage = () => {
 			newErrors.title ||
 			newErrors.description ||
 			newErrors.price ||
-			newErrors.price
+			newErrors.images
 		) {
 			setIsSnackbarOpen(true)
 			return
 		}
 
-		const formData = new FormData()
-		formData.append('title', title)
-		formData.append('description', description)
-		formData.append('price', rawPrice)
-		formData.append('categoryId', categoryId.toString())
+		try {
+			setIsLoading(true)
 
-		images.forEach(img => {
-			formData.append('photos', img.file)
-		})
+			const formData = new FormData()
+			formData.append('title', title)
+			formData.append('description', description)
+			formData.append('price', rawPrice)
+			formData.append('category_id', categoryId.toString())
 
-		console.log('Валидация прошла успешно. Отправляем...')
-		// await fetch(...)
+			images.forEach(img => {
+				formData.append('images', img.file)
+			})
+
+			const response = await fetch('/api/ads', {
+				method: 'POST',
+				body: formData,
+			})
+
+			if (!response.ok) {
+				throw new Error('Ошибка при сохранении')
+			}
+
+			const result = await response.json()
+			console.log('Успешно создано:', result)
+
+			navigate('/') 
+		} catch (error) {
+			console.error('Ошибка отправки:', error)
+			// Здесь можно показать другой Snackbar с текстом "Ошибка сети"
+			alert('Не удалось опубликовать объявление. Попробуйте позже.')
+		} finally {
+			setIsLoading(false)
+		}
 	}
 
 	return (
@@ -139,15 +164,12 @@ export const CreateAdPage = () => {
 					</Section>
 
 					<Section header='Стоимость'>
-						<AdPriceField
-							price={price}
-							onChange={priceChange}
-						/>
+						<AdPriceField price={price} onChange={priceChange} />
 					</Section>
 				</List>
 			</div>
 
-			<PublishButton onClick={handleSave} />
+			<PublishButton onClick={handleSave} loading={isLoading} />
 
 			{isSnackbarOpen && (
 				<Snackbar
