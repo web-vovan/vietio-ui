@@ -118,28 +118,19 @@ export const FeedPage = () => {
 					throw new Error(`Ошибка: ${response.statusText}`)
 				}
 
-				// 1. Получаем "сырой" ответ
 				const rawData = await response.json()
 
-				// 2. Достаем массив из поля "items"
-				// Если items нет, берем пустой массив []
 				const rawItems = rawData.items || []
 				setTotalCount(rawData.total || 0)
 
-				// 3. ПРЕОБРАЗОВАНИЕ (Adapter)
-				// Здесь мы мапим поля API в поля нашего приложения и ставим заглушки
 				const adaptedAds: Ad[] = rawItems.map((item: any) => ({
-					id: item.ID, // API (ID) -> Frontend (id)
-					title: item.Title, // API (Title) -> Frontend (title)
-					price: item.Price, // API (Price) -> Frontend (price)
-
-					// --- ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ ---
-					currency: 'VND', // Раз API не шлет валюту, хардкодим донги
-					city: 'Вьетнам', // Заглушка, пока API не научится отдавать город
-					image_url: '', // Пустая строка, компонент сам подставит букву
-
-					// Можно даже сгенерировать случайный цвет для заглушки картинки,
-					// если мы добавим поле color в интерфейс Ad, но пока оставим так.
+					uuid: item.uuid,
+					title: item.title,
+					price: item.price,
+					currency: 'VND',
+					city: item.city,
+					image: item.image,
+					category_id: item.category_id
 				}))
 
 				setAds(prev => [...prev, ...adaptedAds])
@@ -205,7 +196,7 @@ export const FeedPage = () => {
 								const isLast = index === ads.length - 1
 
 								return (
-									<div key={item.id} ref={isLast ? lastElementRef : null}>
+									<div key={item.uuid} ref={isLast ? lastElementRef : null}>
 										<AdCard item={item} />
 									</div>
 								)

@@ -18,7 +18,7 @@ export const App = () => (
 				<Route path='/create' element={<CreateAdPage />} />
 
 				{/* Детальная страница */}
-				<Route path='/ad/:id' element={<AdDetailsPage />} />
+				<Route path='/ads/:uuid' element={<AdDetailsPage />} />
 			</Routes>
 		</BrowserRouter>
 	</AppRoot>

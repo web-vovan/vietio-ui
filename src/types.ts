@@ -1,22 +1,22 @@
 export interface Ad {
-	id: number
+	uuid: string
 	title: string
-	price: number // С бэкенда цена чаще приходит числом (например 100000)
-	currency: string // Например 'VND' или 'RUB'
-	city: string // Город
-	image_url?: string // Ссылка на фото. Если нет — покажем заглушку
-	category_id?: number
-	created_at?: string
+	price: number
+	currency: string
+	city: string
+	image?: string
+	category_id: number
+	created_at: string
 }
 
 export interface AdDetail {
-	id: number
+	uuid: string
 	title: string
-	price: number // С бэкенда цена чаще приходит числом (например 100000)
-	currency: string // Например 'VND' или 'RUB'
-	city: string // Город
+	price: number
+	currency: string
+	city: string
 	description: string
-	photos: string[] // Массив ссылок (или Base64 строк)
+	images: string[]
 	created_at: string
 }
 

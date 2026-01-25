@@ -1,10 +1,6 @@
-import {
-	Button,
-	Caption,
-	Card,
-	Text,
-	Subheadline,
-} from '@telegram-apps/telegram-ui'
+import { useNavigate } from 'react-router-dom'
+
+import { Caption, Card, Text, Subheadline } from '@telegram-apps/telegram-ui'
 import { Ad } from '../types'
 
 type EmptySearchProps = {
@@ -14,18 +10,22 @@ type EmptySearchProps = {
 const formatPrice = (price: number, currency: string) => {
 	return new Intl.NumberFormat('vi-VN', {
 		style: 'currency',
-		currency: currency || 'VND',
+		currency: currency,
 	}).format(price)
 }
 
 export const AdCard = ({ item }: EmptySearchProps) => {
+	const navigate = useNavigate()
+
 	return (
 		<Card
-			key={item.id}
+			key={item.uuid}
+			onClick={() => navigate(`/ads/${item.uuid}`)}
 			style={{
 				display: 'flex',
 				flexDirection: 'column',
 				overflow: 'hidden',
+				cursor: 'pointer',
 			}}
 		>
 			{/* Блок с картинкой */}
@@ -37,9 +37,9 @@ export const AdCard = ({ item }: EmptySearchProps) => {
 					position: 'relative',
 				}}
 			>
-				{item.image_url ? (
+				{item.image ? (
 					<img
-						src={item.image_url}
+						src={item.image}
 						alt={item.title}
 						style={{
 							width: '100%',
@@ -68,10 +68,7 @@ export const AdCard = ({ item }: EmptySearchProps) => {
 
 			<div style={{ padding: '10px 12px' }}>
 				{/* Цена (отформатированная) */}
-				<Text
-					weight='3'
-					style={{ display: 'block', marginBottom: 4 }}
-				>
+				<Text weight='3' style={{ display: 'block', marginBottom: 4 }}>
 					{formatPrice(item.price, item.currency)}
 				</Text>
 
@@ -86,15 +83,6 @@ export const AdCard = ({ item }: EmptySearchProps) => {
 				>
 					{item.city}
 				</Caption>
-
-				<Button
-					size='s'
-					mode='bezeled'
-					stretched
-					style={{ marginTop: 10 }}
-				>
-					Купить
-				</Button>
 			</div>
 		</Card>
 	)
