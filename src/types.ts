@@ -22,8 +22,9 @@ export interface AdDetail {
 
 export interface ImageItem {
 	id: string // Уникальный ID для React key
-	file: File // Сам файл для отправки
+	file: File | null // Сам файл для отправки
 	preview: string // URL для отображения (blob:...)
+	isServer?: boolean
 }
 
 export interface CategoryItem {

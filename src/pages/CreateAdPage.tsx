@@ -14,14 +14,8 @@ import { PublishButton } from '../components/PublishButton'
 import { AdTitleField } from '../components/AdTitleField'
 import { AdDescriptionField } from '../components/AdDescriptionField'
 import { AdPriceField } from '../components/AdPriceField'
+import { ImageItem } from '../types'
 import { useNavigate } from 'react-router-dom';
-
-// Тип для хранения картинки
-interface ImageItem {
-  id: string;
-  file: File;
-  preview: string;
-}
 
 export const CreateAdPage = () => {
 	const navigate = useNavigate()
@@ -105,7 +99,9 @@ export const CreateAdPage = () => {
 			formData.append('category_id', categoryId.toString())
 
 			images.forEach(img => {
-				formData.append('images', img.file)
+				if (img.file) {
+					formData.append('images', img.file)
+				}
 			})
 
 			const response = await fetch('/api/ads', {
