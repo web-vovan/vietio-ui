@@ -11,6 +11,7 @@ import { AdDetailInfo } from '../components/AdDetailInfo'
 import { AdDetailLoader } from '../components/AdDetailLoader'
 import { AdDetailError } from '../components/AdDetailError'
 import { AdDetail } from '../types'
+import { apiClient } from '../api/apiClient'
 
 export const AdDetailsPage = () => {
 	const { uuid } = useParams()
@@ -24,7 +25,7 @@ export const AdDetailsPage = () => {
 			try {
 				setIsLoading(true)
 
-				const response = await fetch(`/api/ads/${uuid}`)
+				const response = await apiClient(`/api/ads/${uuid}`)
 
 				if (!response.ok) throw new Error('Объявление не найдено')
 

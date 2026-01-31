@@ -11,6 +11,7 @@ import { Loader } from '../components/Loader'
 
 import { Ad } from '../types'
 import { categories } from '../constants'
+import { apiClient } from '../api/apiClient'
 
 export const FeedPage = () => {
 	// 1. Используем хук для управления URL параметрами
@@ -112,7 +113,7 @@ export const FeedPage = () => {
 					url += `?${params.join('&')}`
 				}
 
-				const response = await fetch(url)
+				const response = await apiClient(url)
 
 				if (!response.ok) {
 					throw new Error(`Ошибка: ${response.statusText}`)
