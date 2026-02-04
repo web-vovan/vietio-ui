@@ -16,6 +16,7 @@ import { AdDescriptionField } from '../components/AdDescriptionField'
 import { AdPriceField } from '../components/AdPriceField'
 import { ImageItem } from '../types'
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../api/apiClient';
 
 export const CreateAdPage = () => {
 	const navigate = useNavigate()
@@ -104,7 +105,7 @@ export const CreateAdPage = () => {
 				}
 			})
 
-			const response = await fetch('/api/ads', {
+			const response = await apiClient('/api/ads', {
 				method: 'POST',
 				body: formData,
 			})

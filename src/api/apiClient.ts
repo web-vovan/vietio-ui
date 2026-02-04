@@ -1,15 +1,15 @@
 const getJwtToken = async (): Promise<string> => {
 	// @ts-ignore
-	const initData = window.Telegram?.WebApp?.initData
+	const init_data = window.Telegram?.WebApp?.initData
 
-	if (!initData) {
+	if (!init_data) {
 		throw new Error('Запуск вне Telegram')
 	}
 
 	const response = await fetch('/api/auth/login', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ initData }),
+		body: JSON.stringify({ init_data }),
 	})
 
 	if (!response.ok) {
@@ -33,13 +33,24 @@ export const apiClient = async (url: string, options: RequestInit = {}) => {
 		}
 	}
 
-	const headers = {
-		'Content-Type': 'application/json',
-		...options.headers,
+	const isFormData = options.body instanceof FormData
+
+	const extraHeaders =
+		(options.headers as Record<string, string> | undefined) ?? {}
+
+	const headers: Record<string, string> = {
 		Authorization: `Bearer ${token}`,
+		...extraHeaders,
 	}
 
-	let response = await fetch(url, { ...options, headers })
+	if (!isFormData && !headers['Content-Type']) {
+		headers['Content-Type'] = 'application/json'
+	}
+
+	let response = await fetch(url, {
+		...options,
+		headers,
+	})
 
 	if (response.status === 401) {
 		try {

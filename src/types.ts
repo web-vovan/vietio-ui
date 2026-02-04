@@ -16,6 +16,7 @@ export interface AdDetail {
 	currency: string
 	city: string
 	description: string
+	is_owner?: boolean,
 	images: string[]
 	created_at: string
 }

@@ -7,6 +7,7 @@ import { FeedPage } from './pages/FeedPage'
 import { CreateAdPage } from './pages/CreateAdPage'
 import { AdDetailsPage } from './pages/AdDetailsPage'
 import { EditAdPage } from './pages/EditAdPage'
+import { MyAdsPage } from './pages/MyAdsPage'
 
 export const App = () => (
 	<AppRoot>
@@ -23,6 +24,9 @@ export const App = () => (
 
 				{/* Детальная страница */}
 				<Route path='/ads/:uuid' element={<AdDetailsPage />} />
+
+				{/* Мор объявления */}
+				<Route path='/my' element={<MyAdsPage />} />
 			</Routes>
 		</BrowserRouter>
 	</AppRoot>

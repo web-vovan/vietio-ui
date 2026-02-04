@@ -21,6 +21,7 @@ import { AdTitleField } from '../components/AdTitleField'
 import { AdDescriptionField } from '../components/AdDescriptionField'
 import { AdPriceField } from '../components/AdPriceField'
 import { ImageItem } from '../types'
+import { apiClient } from '../api/apiClient'
 
 // Вставьте функцию urlToObjectUrl сюда или импортируйте её
 
@@ -55,7 +56,7 @@ export const EditAdPage = () => {
 	useEffect(() => {
 		const fetchAdData = async () => {
 			try {
-				const response = await fetch(`/api/ads/${uuid}`)
+				const response = await apiClient(`/api/ads/${uuid}`)
 				if (!response.ok) throw new Error('Объявление не найдено')
 
 				const data = await response.json()
@@ -145,7 +146,7 @@ export const EditAdPage = () => {
 			})
 
 			// Используем метод PUT (или PATCH)
-			const response = await fetch(`/api/ads/${uuid}`, {
+			const response = await apiClient(`/api/ads/${uuid}`, {
 				method: 'PUT',
 				body: formData,
 			})
