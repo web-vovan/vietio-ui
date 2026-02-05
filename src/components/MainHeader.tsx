@@ -1,63 +1,59 @@
-import { Button, FixedLayout } from "@telegram-apps/telegram-ui";
-import { VietioLogo } from "../VietioLogo";
-
-import { useNavigate } from 'react-router-dom'
+import { FixedLayout, Caption } from '@telegram-apps/telegram-ui'
+import { MapPin } from 'lucide-react'
+import { VietioLogo } from '../VietioLogo'
 
 export const MainHeader = () => {
-	const navigate = useNavigate() // Для перехода на другие страницы
 	return (
 		<FixedLayout
 			vertical='top'
 			style={{
-				padding: '12px 20px',
-				backgroundColor: 'var(--tgui--bg_color)',
+				padding: '12px 16px',
+				background: 'rgba(var(--tgui--bg_color_rgb), 0.9)',
 				borderBottom: '1px solid var(--tgui--secondary_bg_color)',
-				zIndex: 50,
 				backdropFilter: 'blur(10px)',
-				background: 'rgba(var(--tgui--bg_color_rgb), 0.8)',
+				zIndex: 10,
 
 				display: 'flex',
-				justifyContent: 'space-between',
 				alignItems: 'center',
+				justifyContent: 'space-between',
 			}}
 		>
-			{/* ВСТАВЛЯЕМ ЛОГОТИП СЮДА ВМЕСТО ТЕКСТА */}
-			<VietioLogo />
+			{/* Логотип / возврат наверх */}
+			<div
+				onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					cursor: 'pointer',
+				}}
+			>
+				<VietioLogo />
+			</div>
 
-			{/* ПРАВАЯ ЧАСТЬ (Кнопки остаются те же) */}
-			<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-				<Button
-					size='s'
-					mode='bezeled'
-					onClick={() => console.log('Профиль')}
+			{/* Город (контекст) */}
+			<div
+				onClick={() => console.log('Смена города')}
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: 4,
+					padding: '6px 10px',
+					borderRadius: 16,
+					cursor: 'pointer',
+					background: 'var(--tgui--secondary_bg_color)',
+				}}
+			>
+				<MapPin size={14} color='var(--tgui--hint_color)' />
+				<Caption
+					level='1'
+					weight='2'
 					style={{
-						width: 36,
-						height: 36,
-						padding: 0,
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
+						color: 'var(--tgui--text_color)',
+						whiteSpace: 'nowrap',
 					}}
 				>
-					<span style={{ fontSize: 20 }}>👤</span>
-				</Button>
-
-				<Button
-					size='s'
-					mode='filled'
-					onClick={() => navigate('/create')}
-					style={{
-						width: 36,
-						height: 36,
-						padding: 0,
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						borderRadius: '50%',
-					}}
-				>
-					<span style={{ fontSize: 24, lineHeight: '24px' }}>+</span>
-				</Button>
+					Нячанг
+				</Caption>
 			</div>
 		</FixedLayout>
 	)

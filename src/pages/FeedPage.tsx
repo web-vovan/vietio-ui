@@ -12,6 +12,7 @@ import { Loader } from '../components/Loader'
 import { Ad } from '../types'
 import { categories } from '../constants'
 import { apiClient } from '../api/apiClient'
+import { FabMenu } from '../components/FabMenu'
 
 export const FeedPage = () => {
 	// 1. Используем хук для управления URL параметрами
@@ -209,6 +210,8 @@ export const FeedPage = () => {
 				{/* Loading next page */}
 				{isLoading && ads.length > 0 && <Loader size='s' />}
 			</div>
+
+			<FabMenu />
 		</>
 	)
 }
