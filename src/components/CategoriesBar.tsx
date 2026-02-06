@@ -25,6 +25,7 @@ export const CategoriesBar = ({
 		>
 			{categories.map(cat => {
 				const isSelected = currentCategoryId === cat.id
+				const Icon = cat.icon
 
 				return (
 					<div
@@ -34,27 +35,37 @@ export const CategoriesBar = ({
 							display: 'flex',
 							flexDirection: 'column',
 							alignItems: 'center',
-							minWidth: 64,
+							minWidth: 68,
 							cursor: 'pointer',
-							opacity: isSelected ? 1 : 0.7,
+							opacity: 1,
+							transition: 'all 0.2s ease',
 						}}
 					>
 						<div
 							style={{
-								width: 50,
-								height: 50,
-								borderRadius: '50%',
-								backgroundColor: isSelected
-									? 'var(--tgui--button_color)'
-									: 'var(--tgui--secondary_bg_color)',
+								width: 56,
+								height: 56,
+								borderRadius: 18,
+								background: isSelected
+									? 'linear-gradient(135deg, #16a34a 0%, #0ea5e9 100%)' // Фирменный градиент
+									: 'var(--tgui--secondary_bg_color)', // Обычный фон
+								boxShadow: isSelected
+									? '0 4px 12px rgba(14, 165, 233, 0.3)'
+									: 'none',
+
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
-								fontSize: 24,
 								marginBottom: 6,
+								transition: 'all 0.2s ease',
 							}}
 						>
-							{cat.icon}
+							<Icon
+								size={26}
+								strokeWidth={2}
+								color={isSelected ? '#ffffff' : 'var(--tgui--text_color)'}
+								style={{ opacity: isSelected ? 1 : 0.6 }}
+							/>
 						</div>
 
 						<Caption
@@ -62,8 +73,10 @@ export const CategoriesBar = ({
 							weight={isSelected ? '2' : '3'}
 							style={{
 								color: isSelected
-									? 'var(--tgui--text_color)'
+									? 'var(--tgui--text_color)' 
 									: 'var(--tgui--hint_color)',
+								textAlign: 'center',
+								lineHeight: '1.2',
 							}}
 						>
 							{cat.name}

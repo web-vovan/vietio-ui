@@ -1,3 +1,5 @@
+import { LucideIcon } from "lucide-react"
+
 export interface Ad {
 	uuid: string
 	title: string
@@ -31,5 +33,5 @@ export interface ImageItem {
 export interface CategoryItem {
 	id: number
 	name: string
-	icon: string
+	icon: LucideIcon
 }

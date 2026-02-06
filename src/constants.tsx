@@ -1,11 +1,21 @@
-// Список категорий для выбора
+import {
+	List,
+	Car,
+	Home,
+	Briefcase,
+	Smartphone,
+	Shirt,
+	Sofa,
+	Wrench,
+} from 'lucide-react'
+
 export const categories = [
-	{ id: 0, name: 'Все', icon: '⚡️' },
-	{ id: 1, name: 'Авто', icon: '🚗' },
-	{ id: 2, name: 'Недвиж.', icon: '🏠' },
-	{ id: 3, name: 'Работа', icon: '💼' },
-	{ id: 4, name: 'Техника', icon: '📱' },
-	{ id: 5, name: 'Одежда', icon: '👕' },
-	{ id: 6, name: 'Для дома', icon: '🛋️' },
-	{ id: 7, name: 'Услуги', icon: '🛠️' },
+	{ id: 0, name: 'Все', icon: List },
+	{ id: 1, name: 'Авто', icon: Car },
+	{ id: 2, name: 'Жильё', icon: Home },
+	{ id: 3, name: 'Работа', icon: Briefcase },
+	{ id: 4, name: 'Техника', icon: Smartphone },
+	{ id: 5, name: 'Одежда', icon: Shirt },
+	{ id: 6, name: 'Для дома', icon: Sofa },
+	{ id: 7, name: 'Услуги', icon: Wrench },
 ]
