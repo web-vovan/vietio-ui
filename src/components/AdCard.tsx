@@ -1,20 +1,21 @@
 import { useNavigate } from 'react-router-dom'
-
+import { Image as ImageIcon } from 'lucide-react'
 import { Caption, Card, Text, Subheadline } from '@telegram-apps/telegram-ui'
 import { Ad } from '../types'
 
-type EmptySearchProps = {
+type AdCardProps = {
 	item: Ad
 }
 
 const formatPrice = (price: number, currency: string) => {
-	return new Intl.NumberFormat('vi-VN', {
+	return new Intl.NumberFormat('ru-RU', {
 		style: 'currency',
-		currency: currency,
+		currency: currency || 'VND',
+		maximumFractionDigits: 0,
 	}).format(price)
 }
 
-export const AdCard = ({ item }: EmptySearchProps) => {
+export const AdCard = ({ item }: AdCardProps) => {
 	const navigate = useNavigate()
 
 	return (
@@ -26,60 +27,119 @@ export const AdCard = ({ item }: EmptySearchProps) => {
 				flexDirection: 'column',
 				overflow: 'hidden',
 				cursor: 'pointer',
+				borderRadius: 20,
+				background: 'var(--tgui--bg_color)',
+				boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+				border: 'none',
 			}}
 		>
-			{/* Блок с картинкой */}
+			{/* 
+                КОНТЕЙНЕР КАРТИНКИ
+                aspectRatio: '1 / 1' — Жестко задает квадрат.
+                Высота будет равна ширине колонки. Ни пикселем больше.
+            */}
 			<div
 				style={{
-					height: 120,
+					aspectRatio: '1 / 1',
 					width: '100%',
-					backgroundColor: '#eee', // Серый фон пока грузится картинка
+					backgroundColor: 'var(--tgui--secondary_bg_color)',
 					position: 'relative',
+					overflow: 'hidden', // Обрезаем все, что вылезает за квадрат
 				}}
 			>
 				{item.image ? (
-					<img
-						src={item.image}
-						alt={item.title}
-						style={{
-							width: '100%',
-							height: '100%',
-							objectFit: 'cover',
-						}}
-					/>
+					<>
+						{/* 1. РАЗМЫТЫЙ ФОН (Заполняет весь квадрат) */}
+						<div
+							style={{
+								position: 'absolute',
+								top: 0,
+								left: 0,
+								right: 0,
+								bottom: 0,
+								backgroundImage: `url(${item.image})`,
+								backgroundPosition: 'center',
+								backgroundSize: 'cover',
+								filter: 'blur(20px) brightness(0.9)', // Сильный блюр
+								transform: 'scale(1.2)', // Убираем белые края от блюра
+								zIndex: 0,
+							}}
+						/>
+
+						{/* 2. РЕАЛЬНАЯ КАРТИНКА (Вписана в квадрат) */}
+						<img
+							src={item.image}
+							alt={item.title}
+							style={{
+								position: 'relative',
+								zIndex: 1,
+								width: '100%',
+								height: '100%',
+								// contain = Фото будет видно целиком внутри квадрата
+								objectFit: 'contain',
+								transition: 'transform 0.3s ease',
+							}}
+						/>
+					</>
 				) : (
-					// Если картинки нет — показываем первую букву на цветном фоне
 					<div
 						style={{
 							width: '100%',
 							height: '100%',
-							background: '#8E8E93',
 							display: 'flex',
 							alignItems: 'center',
 							justifyContent: 'center',
-							color: '#fff',
-							fontSize: 24,
+							color: 'var(--tgui--hint_color)',
+							zIndex: 1,
+							position: 'relative',
 						}}
 					>
-						{item.title[0]}
+						<ImageIcon size={32} />
 					</div>
 				)}
 			</div>
 
-			<div style={{ padding: '10px 12px' }}>
-				{/* Цена (отформатированная) */}
-				<Text weight='3' style={{ display: 'block', marginBottom: 4 }}>
+			{/* Контент карточки */}
+			<div style={{ padding: '10px 10px 12px 10px' }}>
+				<Text
+					weight='2'
+					style={{
+						display: 'block',
+						fontSize: 17,
+						lineHeight: '22px',
+						marginBottom: 4,
+					}}
+				>
 					{formatPrice(item.price, item.currency)}
 				</Text>
 
-				<Subheadline level='2' weight='2' style={{ marginBottom: 4 }}>
+				<Subheadline
+					level='2'
+					weight='3'
+					style={{
+						marginBottom: 4,
+						minHeight: 36, // Фикс высоты под 2 строки
+						display: '-webkit-box',
+						WebkitLineClamp: 2,
+						WebkitBoxOrient: 'vertical',
+						overflow: 'hidden',
+						fontSize: 13,
+						lineHeight: '18px',
+					}}
+				>
 					{item.title}
 				</Subheadline>
 
 				<Caption
 					level='1'
 					weight='3'
-					style={{ color: 'var(--tgui--hint_color)' }}
+					style={{
+						color: 'var(--tgui--hint_color)',
+						fontSize: 11,
+						whiteSpace: 'nowrap',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+					}}
 				>
 					{item.city}
 				</Caption>
