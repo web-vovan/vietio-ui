@@ -8,42 +8,41 @@ import { MainHeader } from '../components/MainHeader'
 import { CounterAndSort } from '../components/CounterAndSort'
 import { AdCard } from '../components/AdCard'
 import { Loader } from '../components/Loader'
+import { FabMenu } from '../components/FabMenu'
 
 import { Ad } from '../types'
 import { categories } from '../constants'
 import { apiClient } from '../api/apiClient'
-import { FabMenu } from '../components/FabMenu'
 
 export const FeedPage = () => {
-	// 1. Используем хук для управления URL параметрами
 	const [searchParams, setSearchParams] = useSearchParams()
-	// const navigate = useNavigate() // Для перехода на другие страницы
 
-	// Читаем категорию из URL (или 'all')
 	const currentCategoryId = parseInt(searchParams.get('category_id') || '0')
-
-	// 1. Читаем сортировку из URL
 	const currentSort = searchParams.get('sort') || 'date_desc'
 
-	const [ads, setAds] = useState<Ad[]>([]) // Список объявлений
-	const [totalCount, setTotalCount] = useState<number>(0) // Количество объявлений
-	const [isLoading, setIsLoading] = useState(true) // Индикатор загрузки
-	const [error, setError] = useState<string | null>(null) // Ошибки
+	const [ads, setAds] = useState<Ad[]>([])
+	const [totalCount, setTotalCount] = useState<number>(0)
+	const [isLoading, setIsLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
 
 	const [page, setPage] = useState(1)
 	const [hasMore, setHasMore] = useState(true)
 
-	// const loaderRef = useRef<HTMLDivElement | null>(null)
+	// Рефы для хранения предыдущих фильтров (чтобы избежать двойных запросов)
+	const prevCategoryId = useRef(currentCategoryId)
+	const prevSort = useRef(currentSort)
 
 	const observer = useRef<IntersectionObserver | null>(null)
 
+	// --- Callback для бесконечного скролла ---
 	const lastElementRef = useCallback(
 		(node: HTMLDivElement | null) => {
-			if (isLoading) return
+			if (isLoading) return // Не триггерим, если уже грузим
 
 			if (observer.current) observer.current.disconnect()
 
 			observer.current = new IntersectionObserver(entries => {
+				// Если якорь появился на экране и есть еще страницы
 				if (entries[0].isIntersecting && hasMore) {
 					setPage(prev => prev + 1)
 				}
@@ -51,47 +50,45 @@ export const FeedPage = () => {
 
 			if (node) observer.current.observe(node)
 		},
-		[isLoading, hasMore]
+		[isLoading, hasMore],
 	)
 
-	// Смена категории через хук роутера
 	const handleCategoryChange = (id: number) => {
-		setIsLoading(true) 
-
-		// При смене категории сохраняем текущую сортировку!
 		const newParams = new URLSearchParams(searchParams)
-
-		if (id === 0) {
-			newParams.delete('category_id')
-		} else {
-			newParams.set('category_id', id.toString())
-		}
+		if (id === 0) newParams.delete('category_id')
+		else newParams.set('category_id', id.toString())
 		setSearchParams(newParams)
 	}
 
-	// 2. Обработчик смены сортировки
 	const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setIsLoading(true) 
-		
 		const newValue = e.target.value
-
-		// Копируем текущие параметры (чтобы не сбросить выбранную категорию!)
 		const newParams = new URLSearchParams(searchParams)
-
-		// Обновляем только сортировку
 		newParams.set('sort', newValue)
-
 		setSearchParams(newParams)
 	}
 
+	// --- ОСНОВНОЙ ЭФФЕКТ ЗАГРУЗКИ ---
 	useEffect(() => {
-		setAds([])
-		setPage(1)
-		setHasMore(true)
-		setError(null)
-	}, [currentCategoryId, currentSort])
+		// 1. Проверяем смену фильтров
+		const isFilterChanged =
+			prevCategoryId.current !== currentCategoryId ||
+			prevSort.current !== currentSort
 
-	useEffect(() => {
+		if (isFilterChanged) {
+			prevCategoryId.current = currentCategoryId
+			prevSort.current = currentSort
+
+			// Если мы не на 1 странице, сбрасываем и прерываем текущий эффект
+			if (page !== 1) {
+				setPage(1)
+				setAds([])
+				return // Ждем перезапуска эффекта с page=1
+			}
+
+			// Если мы на 1 странице, просто чистим список перед загрузкой
+			setAds([])
+		}
+
 		const fetchAds = async () => {
 			try {
 				setIsLoading(true)
@@ -103,13 +100,10 @@ export const FeedPage = () => {
 					params.push(`category_id=${currentCategoryId}`)
 				}
 
-				// 2. Сортировка (Добавлено)
-				// Если currentSort существует (а он по умолчанию 'newest'), добавляем в запрос
 				if (currentSort) {
 					params.push(`sort=${currentSort}`)
 				}
 
-				// Склеиваем параметры через & (например: ?category_id=1&sort=price_asc)
 				if (params.length > 0) {
 					url += `?${params.join('&')}`
 				}
@@ -121,7 +115,6 @@ export const FeedPage = () => {
 				}
 
 				const rawData = await response.json()
-
 				const rawItems = rawData.items || []
 				setTotalCount(rawData.total || 0)
 
@@ -132,12 +125,16 @@ export const FeedPage = () => {
 					currency: 'VND',
 					city: item.city,
 					image: item.image,
-					category_id: item.category_id
+					category_id: item.category_id,
 				}))
 
-				setAds(prev => [...prev, ...adaptedAds])
+				setAds(prev => {
+					// Если 1 страница - заменяем, иначе добавляем
+					if (page === 1) return adaptedAds
+					return [...prev, ...adaptedAds]
+				})
 
-				// Есть ли ещё страницы
+				// Проверяем, есть ли еще данные
 				const loadedCount = (page - 1) * 20 + adaptedAds.length
 				setHasMore(loadedCount < rawData.total)
 			} catch (err: any) {
@@ -153,19 +150,15 @@ export const FeedPage = () => {
 
 	return (
 		<>
-			{/* --- ФИКСИРОВАННАЯ ШАПКА --- */}
 			<MainHeader />
 
-			{/* --- ОСНОВНОЙ КОНТЕЙНЕР --- */}
 			<div style={{ paddingTop: 70, paddingBottom: 40 }}>
-				{/* --- ГОРИЗОНТАЛЬНЫЙ СПИСОК КАТЕГОРИЙ --- */}
 				<CategoriesBar
 					categories={categories}
 					currentCategoryId={currentCategoryId}
 					onCategoryChange={handleCategoryChange}
 				/>
 
-				{/* --- БЛОК СОРТИРОВКИ И СЧЕТЧИКА --- */}
 				<CounterAndSort
 					isLoading={isLoading}
 					totalCount={totalCount}
@@ -174,40 +167,43 @@ export const FeedPage = () => {
 					handleSortChange={handleSortChange}
 				/>
 
-				{/* Initial loading */}
+				{/* Лоадер при ПЕРВОЙ загрузке */}
 				{isLoading && ads.length === 0 && <Loader size='l' />}
 
-				{/* Ошибка загрузки */}
 				{error && !isLoading && <ErrorSearch error={error} />}
 
-				{/* Нет результатов */}
 				{!isLoading && !error && totalCount === 0 && <EmptySearch />}
 
-				{/* Данные загрузились */}
+				{/* СПИСОК ТОВАРОВ */}
 				{!error && ads.length > 0 && (
-					<>
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: '1fr 1fr',
-								gap: 12,
-								padding: '0 16px',
-							}}
-						>
-							{ads.map((item, index) => {
-								const isLast = index === ads.length - 1
-
-								return (
-									<div key={item.uuid} ref={isLast ? lastElementRef : null}>
-										<AdCard item={item} />
-									</div>
-								)
-							})}
-						</div>
-					</>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: '1fr 1fr',
+							gap: 12,
+							padding: '0 16px',
+						}}
+					>
+						{ads.map(item => (
+							// ПРОСТО РЕНДЕРИМ, БЕЗ REF
+							<AdCard key={item.uuid} item={item} />
+						))}
+					</div>
 				)}
 
-				{/* Loading next page */}
+				{/* 
+                    --- ЯКОРЬ БЕСКОНЕЧНОГО СКРОЛЛА ---
+                    Этот блок виден только если есть данные и есть что еще грузить.
+                    Observer следит за ним.
+                */}
+				{!isLoading && hasMore && ads.length > 0 && (
+					<div
+						ref={lastElementRef}
+						style={{ height: 40, width: '100%', opacity: 0 }}
+					/>
+				)}
+
+				{/* Лоадер при ПОДГРУЗКЕ (внизу) */}
 				{isLoading && ads.length > 0 && <Loader size='s' />}
 			</div>
 
