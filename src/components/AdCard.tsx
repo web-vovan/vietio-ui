@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Image as ImageIcon } from 'lucide-react'
+import {  Gift, Image as ImageIcon } from 'lucide-react'
 import { Caption, Card, Text, Subheadline } from '@telegram-apps/telegram-ui'
 import { Ad } from '../types'
 
@@ -33,23 +33,17 @@ export const AdCard = ({ item }: AdCardProps) => {
 				border: 'none',
 			}}
 		>
-			{/* 
-                КОНТЕЙНЕР КАРТИНКИ
-                aspectRatio: '1 / 1' — Жестко задает квадрат.
-                Высота будет равна ширине колонки. Ни пикселем больше.
-            */}
 			<div
 				style={{
 					aspectRatio: '1 / 1',
 					width: '100%',
 					backgroundColor: 'var(--tgui--secondary_bg_color)',
 					position: 'relative',
-					overflow: 'hidden', // Обрезаем все, что вылезает за квадрат
+					overflow: 'hidden',
 				}}
 			>
 				{item.image ? (
 					<>
-						{/* 1. РАЗМЫТЫЙ ФОН (Заполняет весь квадрат) */}
 						<div
 							style={{
 								position: 'absolute',
@@ -60,13 +54,12 @@ export const AdCard = ({ item }: AdCardProps) => {
 								backgroundImage: `url(${item.image})`,
 								backgroundPosition: 'center',
 								backgroundSize: 'cover',
-								filter: 'blur(20px) brightness(0.9)', // Сильный блюр
-								transform: 'scale(1.2)', // Убираем белые края от блюра
+								filter: 'blur(20px) brightness(0.9)',
+								transform: 'scale(1.2)',
 								zIndex: 0,
 							}}
 						/>
 
-						{/* 2. РЕАЛЬНАЯ КАРТИНКА (Вписана в квадрат) */}
 						<img
 							src={item.image}
 							alt={item.title}
@@ -75,7 +68,6 @@ export const AdCard = ({ item }: AdCardProps) => {
 								zIndex: 1,
 								width: '100%',
 								height: '100%',
-								// contain = Фото будет видно целиком внутри квадрата
 								objectFit: 'contain',
 								transition: 'transform 0.3s ease',
 							}}
@@ -99,19 +91,54 @@ export const AdCard = ({ item }: AdCardProps) => {
 				)}
 			</div>
 
-			{/* Контент карточки */}
 			<div style={{ padding: '10px 10px 12px 10px' }}>
-				<Text
-					weight='2'
-					style={{
-						display: 'block',
-						fontSize: 17,
-						lineHeight: '22px',
-						marginBottom: 4,
-					}}
-				>
-					{formatPrice(item.price, item.currency)}
-				</Text>
+				{/* ЛОГИКА ВЫВОДА ЦЕНЫ */}
+				{item.price === 0 ? (
+					<Text
+						weight='2'
+						style={{
+							display: 'inline-flex',
+							alignItems: 'center',
+							gap: 4,
+							fontSize: 17,
+							lineHeight: '22px',
+							marginBottom: 4,
+							fontWeight: 700,
+						}}
+					>
+						<Gift
+							size={14}
+							style={{
+								color: '#22c55e',
+								flexShrink: 0,
+							}}
+						/>
+
+						<span
+							style={{
+								background: 'linear-gradient(90deg, #16a34a 0%, #0ea5e9 100%)',
+								WebkitBackgroundClip: 'text',
+								WebkitTextFillColor: 'transparent',
+							}}
+						>
+							free
+						</span>
+					</Text>
+				) : (
+					// ОБЫЧНАЯ ЦЕНА
+					<Text
+						weight='2'
+						style={{
+							display: 'block',
+							fontSize: 17,
+							lineHeight: '22px',
+							marginBottom: 4,
+							color: 'var(--tgui--text_color)',
+						}}
+					>
+						{formatPrice(item.price, item.currency)}
+					</Text>
+				)}
 
 				<Subheadline
 					level='2'

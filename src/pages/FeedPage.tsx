@@ -28,21 +28,19 @@ export const FeedPage = () => {
 	const [page, setPage] = useState(1)
 	const [hasMore, setHasMore] = useState(true)
 
-	// Рефы для хранения предыдущих фильтров (чтобы избежать двойных запросов)
 	const prevCategoryId = useRef(currentCategoryId)
 	const prevSort = useRef(currentSort)
 
 	const observer = useRef<IntersectionObserver | null>(null)
 
-	// --- Callback для бесконечного скролла ---
 	const lastElementRef = useCallback(
 		(node: HTMLDivElement | null) => {
-			if (isLoading) return // Не триггерим, если уже грузим
+			if (error) return
+			if (isLoading) return
 
 			if (observer.current) observer.current.disconnect()
 
 			observer.current = new IntersectionObserver(entries => {
-				// Если якорь появился на экране и есть еще страницы
 				if (entries[0].isIntersecting && hasMore) {
 					setPage(prev => prev + 1)
 				}
@@ -67,9 +65,7 @@ export const FeedPage = () => {
 		setSearchParams(newParams)
 	}
 
-	// --- ОСНОВНОЙ ЭФФЕКТ ЗАГРУЗКИ ---
 	useEffect(() => {
-		// 1. Проверяем смену фильтров
 		const isFilterChanged =
 			prevCategoryId.current !== currentCategoryId ||
 			prevSort.current !== currentSort
@@ -78,20 +74,19 @@ export const FeedPage = () => {
 			prevCategoryId.current = currentCategoryId
 			prevSort.current = currentSort
 
-			// Если мы не на 1 странице, сбрасываем и прерываем текущий эффект
 			if (page !== 1) {
 				setPage(1)
 				setAds([])
-				return // Ждем перезапуска эффекта с page=1
+				return
 			}
 
-			// Если мы на 1 странице, просто чистим список перед загрузкой
 			setAds([])
 		}
 
 		const fetchAds = async () => {
 			try {
 				setIsLoading(true)
+				setError(null)
 
 				let url = '/api/ads'
 				const params = [`page=${page}`]
@@ -129,16 +124,13 @@ export const FeedPage = () => {
 				}))
 
 				setAds(prev => {
-					// Если 1 страница - заменяем, иначе добавляем
 					if (page === 1) return adaptedAds
 					return [...prev, ...adaptedAds]
 				})
 
-				// Проверяем, есть ли еще данные
 				const loadedCount = (page - 1) * 20 + adaptedAds.length
 				setHasMore(loadedCount < rawData.total)
 			} catch (err: any) {
-				console.error(err)
 				setError('Не удалось загрузить объявления')
 			} finally {
 				setIsLoading(false)
@@ -167,14 +159,12 @@ export const FeedPage = () => {
 					handleSortChange={handleSortChange}
 				/>
 
-				{/* Лоадер при ПЕРВОЙ загрузке */}
 				{isLoading && ads.length === 0 && <Loader size='l' />}
 
 				{error && !isLoading && <ErrorSearch error={error} />}
 
 				{!isLoading && !error && totalCount === 0 && <EmptySearch />}
 
-				{/* СПИСОК ТОВАРОВ */}
 				{!error && ads.length > 0 && (
 					<div
 						style={{
@@ -185,17 +175,11 @@ export const FeedPage = () => {
 						}}
 					>
 						{ads.map(item => (
-							// ПРОСТО РЕНДЕРИМ, БЕЗ REF
 							<AdCard key={item.uuid} item={item} />
 						))}
 					</div>
 				)}
 
-				{/* 
-                    --- ЯКОРЬ БЕСКОНЕЧНОГО СКРОЛЛА ---
-                    Этот блок виден только если есть данные и есть что еще грузить.
-                    Observer следит за ним.
-                */}
 				{!isLoading && hasMore && ads.length > 0 && (
 					<div
 						ref={lastElementRef}
@@ -203,7 +187,6 @@ export const FeedPage = () => {
 					/>
 				)}
 
-				{/* Лоадер при ПОДГРУЗКЕ (внизу) */}
 				{isLoading && ads.length > 0 && <Loader size='s' />}
 			</div>
 
