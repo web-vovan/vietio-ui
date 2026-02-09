@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import {  Gift, Image as ImageIcon } from 'lucide-react'
+import {  Image as ImageIcon } from 'lucide-react'
 import { Caption, Card, Text, Subheadline } from '@telegram-apps/telegram-ui'
 import { Ad } from '../types'
 
@@ -106,14 +106,6 @@ export const AdCard = ({ item }: AdCardProps) => {
 							fontWeight: 700,
 						}}
 					>
-						<Gift
-							size={14}
-							style={{
-								color: '#22c55e',
-								flexShrink: 0,
-							}}
-						/>
-
 						<span
 							style={{
 								background: 'linear-gradient(90deg, #16a34a 0%, #0ea5e9 100%)',
@@ -125,7 +117,6 @@ export const AdCard = ({ item }: AdCardProps) => {
 						</span>
 					</Text>
 				) : (
-					// ОБЫЧНАЯ ЦЕНА
 					<Text
 						weight='2'
 						style={{

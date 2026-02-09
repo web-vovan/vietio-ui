@@ -96,8 +96,10 @@ export const AdDetailsPage = () => {
 
 	return (
 		<AppRoot>
-			<AdDetailHeader />
-
+			<AdDetailHeader 
+				uuid={uuid} 
+				title={ad?.title}  
+			/>
 			<div style={{ paddingTop: 60, paddingBottom: 100 }}>
 				<ImageGallery images={ad.images || []} />
 

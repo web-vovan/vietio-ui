@@ -1,47 +1,69 @@
-import { Button, FixedLayout } from "@telegram-apps/telegram-ui";
-import { ChevronLeft, Share2 } from "lucide-react";
-
+import { FixedLayout, IconButton } from '@telegram-apps/telegram-ui'
+import { ChevronLeft, Share2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-export const AdDetailHeader = () => {
-	const navigate = useNavigate() // Для перехода на другие страницы
+const BOT_USERNAME = 'vietio_bot'; // Имя бота без @
+const APP_NAME = 'app';            // Short name приложения из BotFather
+
+interface AdDetailHeaderProps {
+	uuid?: string
+	title?: string
+}
+
+export const AdDetailHeader = ({ uuid, title }: AdDetailHeaderProps) => {
+	const navigate = useNavigate()
+
+	const handleShare = () => {
+		if (!uuid) return
+
+		const appLink = `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${uuid}`
+
+		const messageText = title
+			? `Посмотри это объявление на Vietio: ${title}`
+			: 'Классное объявление во Вьетнаме!'
+
+		const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(appLink)}&text=${encodeURIComponent(messageText)}`
+
+		if (window.Telegram?.WebApp?.openTelegramLink) {
+			window.Telegram.WebApp.openTelegramLink(shareUrl)
+		} else {
+			window.open(shareUrl, '_blank')
+		}
+	}
 
 	return (
 		<FixedLayout
 			vertical='top'
 			style={{
-				padding: '12px 16px',
-				// Делаем полупрозрачную подложку, чтобы видно было на фоне фото
+				padding: '8px 16px',
 				backgroundColor: 'var(--tgui--bg_color)',
 				borderBottom: '1px solid var(--tgui--secondary_bg_color)',
 				zIndex: 50,
 				display: 'flex',
 				justifyContent: 'space-between',
 				alignItems: 'center',
+				paddingTop: 'calc(8px + env(safe-area-inset-top))',
 			}}
 		>
-			<Button
+			<IconButton
 				mode='plain'
 				size='l'
-				onClick={() => navigate(-1)} // Возвращает на предыдущую страницу
-				style={{
-					padding: 0,
-					width: 32,
-					height: 32,
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
+				onClick={() => navigate(-1)}
+				style={{ width: 44, height: 44 }} // Иногда нужно уточнить размеры
 			>
 				<ChevronLeft size={28} color='var(--tgui--link_color)' />
-			</Button>
+			</IconButton>
 
 			<div style={{ display: 'flex', gap: 16 }}>
-				<Share2
-					size={24}
-					color='var(--tgui--link_color)'
-					style={{ cursor: 'pointer' }}
-				/>
+				<IconButton
+					mode='plain'
+					size='l'
+					onClick={handleShare}
+					disabled={!uuid}
+					style={{ width: 44, height: 44 }}
+				>
+					<Share2 size={24} color='var(--tgui--link_color)' />
+				</IconButton>
 			</div>
 		</FixedLayout>
 	)

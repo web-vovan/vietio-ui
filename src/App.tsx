@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { AppRoot } from '@telegram-apps/telegram-ui'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'
 
 // Импорт страниц
 import { FeedPage } from './pages/FeedPage'
@@ -9,9 +9,27 @@ import { AdDetailsPage } from './pages/AdDetailsPage'
 import { EditAdPage } from './pages/EditAdPage'
 import { MyAdsPage } from './pages/MyAdsPage'
 
+const DeepLinkHandler = () => {
+	const navigate = useNavigate()
+
+	useEffect(() => {
+		const tg = window.Telegram?.WebApp
+
+		if (tg?.initDataUnsafe?.start_param) {
+			const startParam = tg.initDataUnsafe.start_param
+
+			navigate(`/ads/${startParam}`, { replace: true })
+		}
+	}, [navigate])
+
+	return null
+}
+
 export const App = () => (
 	<AppRoot>
 		<BrowserRouter>
+			<DeepLinkHandler />
+			
 			<Routes>
 				{/* Главная */}
 				<Route path='/' element={<FeedPage />} />
