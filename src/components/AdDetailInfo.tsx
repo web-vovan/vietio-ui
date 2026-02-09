@@ -1,5 +1,6 @@
 import { List, Section, Text } from "@telegram-apps/telegram-ui"
 import { Calendar, MapPin } from "lucide-react"
+import { formatPrice } from '../helpers/priceHelper'
 
 type AdDetailInfoProp = {
     price: number
@@ -7,14 +8,6 @@ type AdDetailInfoProp = {
     description: string
     date: string
     city: string
-}
-
-// Формат цены
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(price)
 }
 
 // Формат даты
@@ -39,16 +32,40 @@ export const AdDetailInfo = ({
 			{/* Основная инфа: Цена и Название */}
 			<Section>
 				<div style={{ padding: '16px 20px' }}>
-					<Text
-						weight='1'
-						style={{
-							fontSize: 28,
-							lineHeight: '34px',
-							color: 'var(--tgui--text_color)',
-						}}
-					>
-						{formatPrice(price)}
-					</Text>
+					{price === 0 ? (
+						<Text
+							weight='2'
+							style={{
+								fontSize: 28,
+								lineHeight: '22px',
+								marginBottom: 4,
+								fontWeight: 700,
+							}}
+						>
+							<span
+								style={{
+									background:
+										'linear-gradient(90deg, #16a34a 0%, #0ea5e9 100%)',
+									WebkitBackgroundClip: 'text',
+									WebkitTextFillColor: 'transparent',
+								}}
+							>
+								free
+							</span>
+						</Text>
+					) : (
+						<Text
+							weight='1'
+							style={{
+								fontSize: 28,
+								lineHeight: '34px',
+								color: 'var(--tgui--text_color)',
+							}}
+						>
+							{formatPrice(price)}
+						</Text>
+					)}
+
 					<Text
 						weight='2'
 						style={{ fontSize: 20, marginTop: 8, display: 'block' }}
@@ -75,14 +92,14 @@ export const AdDetailInfo = ({
 					</div>
 				</div>
 			</Section>
-			{/* Описание */}
-			<Section header='Описание'>
+
+			<div>
 				<div style={{ padding: '0 20px 16px 20px', whiteSpace: 'pre-wrap' }}>
 					<Text style={{ fontSize: 16, lineHeight: '24px' }}>
 						{description}
 					</Text>
 				</div>
-			</Section>
+			</div>
 		</List>
 	)
 }

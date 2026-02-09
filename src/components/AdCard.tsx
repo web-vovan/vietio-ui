@@ -2,17 +2,10 @@ import { useNavigate } from 'react-router-dom'
 import {  Image as ImageIcon } from 'lucide-react'
 import { Caption, Card, Text, Subheadline } from '@telegram-apps/telegram-ui'
 import { Ad } from '../types'
+import { formatPrice } from '../helpers/priceHelper'
 
 type AdCardProps = {
 	item: Ad
-}
-
-const formatPrice = (price: number, currency: string) => {
-	return new Intl.NumberFormat('ru-RU', {
-		style: 'currency',
-		currency: currency || 'VND',
-		maximumFractionDigits: 0,
-	}).format(price)
 }
 
 export const AdCard = ({ item }: AdCardProps) => {
@@ -92,7 +85,6 @@ export const AdCard = ({ item }: AdCardProps) => {
 			</div>
 
 			<div style={{ padding: '10px 10px 12px 10px' }}>
-				{/* ЛОГИКА ВЫВОДА ЦЕНЫ */}
 				{item.price === 0 ? (
 					<Text
 						weight='2'
@@ -127,7 +119,7 @@ export const AdCard = ({ item }: AdCardProps) => {
 							color: 'var(--tgui--text_color)',
 						}}
 					>
-						{formatPrice(item.price, item.currency)}
+						{formatPrice(item.price)}
 					</Text>
 				)}
 
