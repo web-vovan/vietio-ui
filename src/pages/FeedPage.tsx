@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { EmptySearch } from '../components/EmptySearch'
-import { ErrorSearch } from '../components/ErrorSearch'
+import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { CategoriesBar } from '../components/CategoriesBar'
 import { MainHeader } from '../components/MainHeader'
 import { CounterAndSort } from '../components/CounterAndSort'
@@ -23,7 +23,8 @@ export const FeedPage = () => {
 	const [ads, setAds] = useState<Ad[]>([])
 	const [totalCount, setTotalCount] = useState<number>(0)
 	const [isLoading, setIsLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
+
+	const [errorType, setErrorType] = useState<ErrorType | null>(null)
 
 	const [page, setPage] = useState(1)
 	const [hasMore, setHasMore] = useState(true)
@@ -35,7 +36,7 @@ export const FeedPage = () => {
 
 	const lastElementRef = useCallback(
 		(node: HTMLDivElement | null) => {
-			if (error) return
+			if (errorType) return
 			if (isLoading) return
 
 			if (observer.current) observer.current.disconnect()
@@ -86,7 +87,7 @@ export const FeedPage = () => {
 		const fetchAds = async () => {
 			try {
 				setIsLoading(true)
-				setError(null)
+				setErrorType(null)
 
 				let url = '/api/ads'
 				const params = [`page=${page}`]
@@ -106,7 +107,7 @@ export const FeedPage = () => {
 				const response = await apiClient(url)
 
 				if (!response.ok) {
-					throw new Error(`Ошибка: ${response.statusText}`)
+					throw new Error(`server error`)
 				}
 
 				const rawData = await response.json()
@@ -131,7 +132,7 @@ export const FeedPage = () => {
 				const loadedCount = (page - 1) * 20 + adaptedAds.length
 				setHasMore(loadedCount < rawData.total)
 			} catch (err: any) {
-				setError('Не удалось загрузить объявления')
+				setErrorType('server_error')
 			} finally {
 				setIsLoading(false)
 			}
@@ -151,21 +152,24 @@ export const FeedPage = () => {
 					onCategoryChange={handleCategoryChange}
 				/>
 
-				<CounterAndSort
-					isLoading={isLoading}
-					totalCount={totalCount}
-					currentSort={currentSort}
-					error={error}
-					handleSortChange={handleSortChange}
-				/>
+				{!errorType && (
+					<CounterAndSort
+						isLoading={isLoading}
+						totalCount={totalCount}
+						currentSort={currentSort}
+						handleSortChange={handleSortChange}
+					/>
+				)}
 
 				{isLoading && ads.length === 0 && <Loader size='l' />}
 
-				{error && !isLoading && <ErrorSearch error={error} />}
+				{errorType && !isLoading && (
+					<ErrorPlaceholder errorType={errorType || 'server_error'} />
+				)}
 
-				{!isLoading && !error && totalCount === 0 && <EmptySearch />}
+				{!isLoading && !errorType && totalCount === 0 && <EmptySearch />}
 
-				{!error && ads.length > 0 && (
+				{!errorType && ads.length > 0 && (
 					<div
 						style={{
 							display: 'grid',

@@ -13,56 +13,67 @@ import { AdDetailHeader } from '../components/AdDetailHeader'
 import { MessageButton } from '../components/MessageButton'
 import { AdDetailInfo } from '../components/AdDetailInfo'
 import { AdDetailLoader } from '../components/AdDetailLoader'
-import { AdDetailError } from '../components/AdDetailError'
+import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { AdDetail } from '../types'
 import { apiClient } from '../api/apiClient'
 import { Pencil, Trash } from 'lucide-react'
 
 export const AdDetailsPage = () => {
 	const navigate = useNavigate()
-	
+
 	const { uuid } = useParams()
 
 	const [ad, setAd] = useState<AdDetail | null>(null)
 	const [isLoading, setIsLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
+
+	const [errorType, setErrorType] = useState<ErrorType | null>(null)
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 
-	useEffect(() => {
-		const fetchAdDetails = async () => {
-			try {
-				setIsLoading(true)
+	const fetchAdDetails = async () => {
+		try {
+			setIsLoading(true)
+			setErrorType(null)
 
-				const response = await apiClient(`/api/ads/${uuid}`)
+			const response = await apiClient(`/api/ads/${uuid}`)
 
-				if (!response.ok) throw new Error('Объявление не найдено')
-
-				const rawData = await response.json()
-
-				const adaptedAd: AdDetail = {
-					uuid: rawData.uuid,
-					title: rawData.title,
-					price: rawData.price,
-					currency: 'VND',
-					city: rawData.city,
-					description: rawData.description,
-					is_owner: rawData.is_owner,
-					owner_username: rawData.owner_username,
-					images: rawData.images,
-					created_at: rawData.created_at,
-				}
-
-				setAd(adaptedAd)
-			} catch (err) {
-				console.error(err)
-				setError('Не удалось загрузить объявление')
-			} finally {
-				setIsLoading(false)
+			if (response.status === 400) {
+				setErrorType('bad_request')
+				return
 			}
-		}
 
+			if (response.status === 404) {
+				setErrorType('not_found')
+				return
+			}
+
+			if (!response.ok) throw new Error('server error')
+
+			const rawData = await response.json()
+
+			const adaptedAd: AdDetail = {
+				uuid: rawData.uuid,
+				title: rawData.title,
+				price: rawData.price,
+				currency: 'VND',
+				city: rawData.city,
+				description: rawData.description,
+				is_owner: rawData.is_owner,
+				owner_username: rawData.owner_username,
+				images: rawData.images,
+				created_at: rawData.created_at,
+			}
+
+			setAd(adaptedAd)
+		} catch (err) {
+			setErrorType('server_error')
+		} finally {
+			setIsLoading(false)
+		}
+	}
+	
+	useEffect(() => {
 		fetchAdDetails()
 	}, [uuid])
 
@@ -91,10 +102,15 @@ export const AdDetailsPage = () => {
 		return <AdDetailLoader />
 	}
 
-	if (error || !ad) {
-		return <AdDetailError error='Объявление не найдено' />
+	if (errorType || !ad) {
+		return (
+			<ErrorPlaceholder
+				errorType={errorType || 'server_error'}
+				showHeader={true}
+				show500Btn={true}
+			/>
+		)
 	}
-
 	return (
 		<AppRoot>
 			<AdDetailHeader uuid={uuid} title={ad?.title} />

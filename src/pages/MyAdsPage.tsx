@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
 import { EmptySearch } from '../components/EmptySearch'
-import { ErrorSearch } from '../components/ErrorSearch'
+import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { MyAdsHeader } from '../components/MyAdsHeader'
 import { AdCard } from '../components/AdCard'
 import { Loader } from '../components/Loader'
@@ -13,17 +13,18 @@ export const MyAdsPage = () => {
 	const [ads, setAds] = useState<Ad[]>([]) // Список объявлений
 	const [totalCount, setTotalCount] = useState<number>(0) // Количество объявлений
 	const [isLoading, setIsLoading] = useState(true) // Индикатор загрузки
-	const [error, setError] = useState<string | null>(null) // Ошибки
+	const [errorType, setErrorType] = useState<ErrorType | null>(null)
 
 	useEffect(() => {
 		const fetchAds = async () => {
 			try {
 				setIsLoading(true)
+				setErrorType(null)
 
 				const response = await apiClient("/api/my")
 
 				if (!response.ok) {
-					throw new Error(`Ошибка: ${response.statusText}`)
+					throw new Error(`server error`)
 				}
 
 				const rawData = await response.json()
@@ -43,8 +44,7 @@ export const MyAdsPage = () => {
 
 				setAds(adaptedAds)
 			} catch (err: any) {
-				console.error(err)
-				setError('Не удалось загрузить объявления')
+				setErrorType('server_error')
 			} finally {
 				setIsLoading(false)
 			}
@@ -64,13 +64,15 @@ export const MyAdsPage = () => {
 				{isLoading && ads.length === 0 && <Loader size='l' />}
 
 				{/* Ошибка загрузки */}
-				{error && !isLoading && <ErrorSearch error={error} />}
+				{errorType && !isLoading && (
+					<ErrorPlaceholder showHeader={true} errorType={errorType || 'server_error'} />
+				)}
 
 				{/* Нет результатов */}
-				{!isLoading && !error && totalCount === 0 && <EmptySearch />}
+				{!isLoading && !errorType && totalCount === 0 && <EmptySearch />}
 
 				{/* Данные загрузились */}
-				{!error && ads.length > 0 && (
+				{!errorType && ads.length > 0 && (
 					<div
 						style={{
 							display: 'grid',
@@ -79,7 +81,7 @@ export const MyAdsPage = () => {
 							padding: '0 16px',
 						}}
 					>
-						{ads.map((item) => {
+						{ads.map(item => {
 							return (
 								<div key={item.uuid}>
 									<AdCard item={item} />
