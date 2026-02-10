@@ -19,6 +19,7 @@ export interface AdDetail {
 	city: string
 	description: string
 	is_owner?: boolean,
+	owner_username: string,
 	images: string[]
 	created_at: string
 }

@@ -49,6 +49,7 @@ export const AdDetailsPage = () => {
 					city: rawData.city,
 					description: rawData.description,
 					is_owner: rawData.is_owner,
+					owner_username: rawData.owner_username,
 					images: rawData.images,
 					created_at: rawData.created_at,
 				}
@@ -150,7 +151,7 @@ export const AdDetailsPage = () => {
 						</Button>
 					</div>
 				) : (
-					<MessageButton />
+					<MessageButton username={ad.owner_username} />
 				)}
 			</FixedLayout>
 
