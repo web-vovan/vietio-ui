@@ -14,6 +14,7 @@ export const CategoriesSelect = ({
 }: CategoriesBarProps) => {
 	return (
 		<Select
+			header='Категория'
 			value={currentCategoryId}
 			onChange={e => onCategoryChange(Number(e.target.value))}
 		>

@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { CircleAlert } from 'lucide-react'
 import {
 	AppRoot,
-	List,
-	Section,
 	Snackbar,
 } from '@telegram-apps/telegram-ui'
 import { categories } from '../constants';
@@ -17,6 +15,7 @@ import { AdPriceField } from '../components/AdPriceField'
 import { ImageItem } from '../types'
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/apiClient';
+import { CitySelect } from '../components/CitySelect';
 
 export const CreateAdPage = () => {
 	const navigate = useNavigate()
@@ -130,40 +129,35 @@ export const CreateAdPage = () => {
 	return (
 		<AppRoot>
 			<AdCreateHeader />
+			<div
+				style={{
+					paddingTop: 'calc(61px + env(safe-area-inset-top))',
+					paddingBottom: 100,
+				}}
+			>
+				<CategoriesSelect
+					categories={categoriesWithoutAll}
+					currentCategoryId={categoryId}
+					onCategoryChange={id => setCategoryId(id)}
+				/>
+				<CitySelect />
+				<ImageUploader
+					images={images}
+					error={errors.images}
+					onChange={newImages => handleImagesChange(newImages)}
+				/>
+				<AdTitleField
+					title={title}
+					error={errors.title}
+					onChange={titleChange}
+				/>
+				<AdDescriptionField
+					description={description}
+					error={errors.description}
+					onChange={descriptionChange}
+				/>
 
-			<div style={{ paddingTop: 60, paddingBottom: 80 }}>
-				<List>
-					<Section header='Что вы продаете?'>
-						<CategoriesSelect
-							categories={categoriesWithoutAll}
-							currentCategoryId={categoryId}
-							onCategoryChange={id => setCategoryId(id)}
-						/>
-
-						<ImageUploader
-							images={images}
-							error={errors.images}
-							onChange={newImages => handleImagesChange(newImages)}
-						/>
-					</Section>
-
-					<Section header='Детали'>
-						<AdTitleField
-							title={title}
-							error={errors.title}
-							onChange={titleChange}
-						/>
-						<AdDescriptionField
-							description={description}
-							error={errors.description}
-							onChange={descriptionChange}
-						/>
-					</Section>
-
-					<Section header='Стоимость'>
-						<AdPriceField price={price} onChange={priceChange} />
-					</Section>
-				</List>
+				<AdPriceField price={price} onChange={priceChange} />
 			</div>
 
 			<PublishButton onClick={handleSave} loading={isLoading} />

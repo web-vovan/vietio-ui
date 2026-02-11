@@ -16,7 +16,7 @@ const formatPriceInput = (value: string) => {
 export const AdPriceField = ({ price, onChange }: AdPriceFieldProps) => {
 	return (
 		<Input
-			header='Цена (VND)'
+			header='Цена'
 			placeholder='0'
 			type='text'
 			inputMode='numeric'

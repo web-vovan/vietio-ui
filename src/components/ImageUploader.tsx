@@ -3,7 +3,7 @@ import { useRef } from "react"
 import {
 	Text,
 } from '@telegram-apps/telegram-ui'
-import { Camera, X } from "lucide-react"
+import { Camera, CircleAlert, X } from "lucide-react"
 import { ImageItem } from "../types"
 
 type ImageUploaderProps = {
@@ -88,13 +88,8 @@ export const ImageUploader = ({ error, images, onChange }: ImageUploaderProps) =
 				style={{
 					display: 'flex',
 					overflowX: 'auto',
-					padding: 12,
+					padding: '12px 20px',
 					gap: 12,
-					// ДОБАВИЛИ РАМКУ ПРИ ОШИБКЕ:
-					border: error
-						? '1px solid var(--tgui--destructive_text_color)'
-						: '1px solid transparent',
-					borderRadius: 16, // Скругление рамки
 					transition: 'border 0.2s',
 				}}
 				className='hide-scrollbar'
@@ -173,18 +168,25 @@ export const ImageUploader = ({ error, images, onChange }: ImageUploaderProps) =
 						</div>
 					</div>
 				))}
-				{/* ТЕКСТ ОШИБКИ ДЛЯ ФОТО */}
 				{error && (
-					<Text
+					<div
 						style={{
-							color: 'var(--tgui--destructive_text_color)',
-							fontSize: 13,
-							padding: '0 20px 10px 20px', // Отступы как у других ошибок
+							display: 'flex',
+							alignItems: 'center', // Выравниваем по вертикали
+							gap: 6, // Отступ между иконкой и текстом
+							padding: '0 20px 10px 20px',
 							marginTop: -4,
+							color: 'var(--tgui--destructive_text_color)', // Красный цвет для всего блока
 						}}
 					>
-						Загрузите хотя бы одну фотографию
-					</Text>
+						{/* Иконка */}
+						<CircleAlert size={24} />
+
+						{/* Текст */}
+						<Text style={{ fontSize: 13, lineHeight: '16px' }}>
+							Загрузите хотя бы одну фотографию
+						</Text>
+					</div>
 				)}
 			</div>
 		</>

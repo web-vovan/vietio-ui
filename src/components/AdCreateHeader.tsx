@@ -1,4 +1,4 @@
-import { Button, FixedLayout, Text } from "@telegram-apps/telegram-ui";
+import { FixedLayout, IconButton, Text } from "@telegram-apps/telegram-ui";
 import { ChevronLeft } from "lucide-react";
 
 import { useNavigate } from 'react-router-dom'
@@ -16,24 +16,24 @@ export const AdCreateHeader = () => {
 				zIndex: 50,
 				display: 'flex',
 				alignItems: 'center',
+				justifyContent: 'center',
+				height: 35,
 				gap: 12,
 			}}
 		>
-			<Button
+			<IconButton
 				mode='plain'
 				size='l'
-				onClick={() => navigate(-1)} // Возвращает на предыдущую страницу
+				onClick={() => navigate(-1)}
 				style={{
-					padding: 0,
-					width: 32,
-					height: 32,
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-				}}
+					position: 'absolute',
+					left: 16,
+					width: 44,
+					height: 44,
+				}} // Иногда нужно уточнить размеры
 			>
 				<ChevronLeft size={28} color='var(--tgui--link_color)' />
-			</Button>
+			</IconButton>
 
 			<Text weight='2' style={{ fontSize: 18 }}>
 				Новое объявление
