@@ -33,10 +33,15 @@ export const CreateAdPage = () => {
 	const [errors, setErrors] = useState({
 		title: false,
 		description: false,
-		price: false,
 		images: false,
 	})
 	const [isLoading, setIsLoading] = useState(false)
+
+	const [snackbarMessage, setSnackbarMessage] = useState('')
+	const showSnackbar = (message: string) => {
+		setSnackbarMessage(message)
+		setIsSnackbarOpen(true)
+	}
 
 	const handleImagesChange = (newImages: ImageItem[]) => {
 		setImages(newImages)
@@ -47,7 +52,6 @@ export const CreateAdPage = () => {
 
 	const titleChange = (value: string) => {
 		setTitle(value)
-		// Убираем ошибку сразу, как пользователь начал печатать
 		if (errors.title) setErrors(prev => ({ ...prev, title: false }))
 	}
 
@@ -73,7 +77,6 @@ export const CreateAdPage = () => {
 		const newErrors = {
 			title: !title.trim(),
 			description: !description.trim(),
-			price: !rawPrice,
 			images: images.length === 0,
 		}
 
@@ -82,10 +85,9 @@ export const CreateAdPage = () => {
 		if (
 			newErrors.title ||
 			newErrors.description ||
-			newErrors.price ||
 			newErrors.images
 		) {
-			setIsSnackbarOpen(true)
+			showSnackbar('Заполните все обязательные поля')
 			return
 		}
 
@@ -110,17 +112,14 @@ export const CreateAdPage = () => {
 			})
 
 			if (!response.ok) {
-				throw new Error('Ошибка при сохранении')
+				throw new Error('save error')
 			}
 
-			const result = await response.json()
-			console.log('Успешно создано:', result)
+			await response.json()
 
-			navigate('/') 
+			navigate('/', { state: { adCreated: true } })
 		} catch (error) {
-			console.error('Ошибка отправки:', error)
-			// Здесь можно показать другой Snackbar с текстом "Ошибка сети"
-			alert('Не удалось опубликовать объявление. Попробуйте позже.')
+			showSnackbar('Не удалось опубликовать объявление')
 		} finally {
 			setIsLoading(false)
 		}
@@ -166,10 +165,10 @@ export const CreateAdPage = () => {
 				<Snackbar
 					onClose={() => setIsSnackbarOpen(false)}
 					before={<CircleAlert size={28} color='#FF3B30' />}
-					description='Проверьте выделенные поля'
+					description={snackbarMessage} 
 					style={{ zIndex: 100, marginBottom: 80 }}
 				>
-					Заполните все поля
+					Ошибка
 				</Snackbar>
 			)}
 		</AppRoot>

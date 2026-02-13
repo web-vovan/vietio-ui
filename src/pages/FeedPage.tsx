@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useLocation } from 'react-router-dom'
 
 import { EmptySearch } from '../components/EmptySearch'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
@@ -13,8 +13,11 @@ import { FabMenu } from '../components/FabMenu'
 import { Ad } from '../types'
 import { categories } from '../constants'
 import { apiClient } from '../api/apiClient'
+import { Snackbar } from '@telegram-apps/telegram-ui'
+import { CircleCheck } from 'lucide-react'
 
 export const FeedPage = () => {
+	const location = useLocation()
 	const [searchParams, setSearchParams] = useSearchParams()
 
 	const currentCategoryId = parseInt(searchParams.get('category_id') || '0')
@@ -65,6 +68,27 @@ export const FeedPage = () => {
 		newParams.set('sort', newValue)
 		setSearchParams(newParams)
 	}
+
+	const [isSuccessSnackbarOpen, setIsSuccessSnackbarOpen] = useState(false)
+	const [successSnackBarTitle, setSuccessSnackBarTitle] = useState('')
+	const [successSnackBarDescription, setSuccessSnackBarDescription] =
+		useState('')
+	const showSuccessSnackBar = (title: string, description: string) => {
+		setSuccessSnackBarTitle(title)
+		setSuccessSnackBarDescription(description)
+		setIsSuccessSnackbarOpen(true)
+	}
+
+	useEffect(() => {
+		// Проверяем, пришли ли мы сюда после успешного создания объявления
+		if (location.state?.adCreated) {
+			showSuccessSnackBar(
+				'Объявление опубликовано',
+				'Теперь его видят другие пользователи',
+			)
+			window.history.replaceState({}, document.title)
+		}
+	}, [location])
 
 	useEffect(() => {
 		const isFilterChanged =
@@ -195,6 +219,17 @@ export const FeedPage = () => {
 			</div>
 
 			<FabMenu />
+
+			{isSuccessSnackbarOpen && (
+				<Snackbar
+					onClose={() => setIsSuccessSnackbarOpen(false)}
+					before={<CircleCheck size={28} color='#34C759' />}
+					description={successSnackBarDescription}
+					style={{ zIndex: 100, marginBottom: 80 }}
+				>
+					{successSnackBarTitle}
+				</Snackbar>
+			)}
 		</>
 	)
 }
