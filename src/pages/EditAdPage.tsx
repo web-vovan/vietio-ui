@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom' // <-- useParams для получения ID
-import { CircleAlert } from 'lucide-react'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
 	AppRoot,
-	Snackbar,
 	Button,
 	Placeholder,
 } from '@telegram-apps/telegram-ui'
 
 import { categories } from '../constants'
+import { useSnackbar } from '../providers/SnackbarProvider'
 import { CategoriesSelect } from '../components/CategoriesSelect'
 import { ImageUploader } from '../components/ImageUploader'
 import { PublishButton } from '../components/PublishButton'
@@ -25,6 +24,8 @@ import { AdDetailLoader } from '../components/AdDetailLoader'
 export const EditAdPage = () => {
 	const { uuid } = useParams()
 	const navigate = useNavigate()
+	const { showSnackbar } = useSnackbar()
+
 	const categoriesWithoutAll = categories.slice(1)
 
 	const [title, setTitle] = useState('')
@@ -37,15 +38,8 @@ export const EditAdPage = () => {
 
 	const [isPageLoading, setIsPageLoading] = useState(true) // Загрузка данных объявления
 	const [isSaving, setIsSaving] = useState(false) // Загрузка при сохранении
-	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false)
 	const [pageError, setPageError] = useState<string | null>(null)
 	const [errorType, setErrorType] = useState<ErrorType | null>(null)
-
-	const [snackbarMessage, setSnackbarMessage] = useState('')
-	const showSnackbar = (message: string) => {
-		setSnackbarMessage(message)
-		setIsSnackbarOpen(true)
-	}
 
 	const [errors, setErrors] = useState({
 		title: false,
@@ -136,7 +130,7 @@ export const EditAdPage = () => {
 		setErrors(newErrors)
 
 		if (newErrors.title || newErrors.description || newErrors.images) {
-			showSnackbar('Заполните все обязательные поля')
+			showSnackbar('error', 'Ошибка', 'Заполните все обязательные поля')
 			return
 		}
 
@@ -164,9 +158,10 @@ export const EditAdPage = () => {
 
 			if (!response.ok) throw new Error('Ошибка при обновлении')
 
-			navigate(`/ads/${uuid}`, { state: { adUpdated: true } })
+			sessionStorage.setItem('adUpdated', 'true')
+			navigate(-1)
 		} catch (e) {
-			showSnackbar('Не удалось обновить объявление')
+			showSnackbar('error', 'Ошибка', 'Не удалось обновить объявление')
 		} finally {
 			setIsSaving(false)
 		}
@@ -245,17 +240,6 @@ export const EditAdPage = () => {
 						loading={isSaving}
 					/>
 				</>
-			)}
-
-			{isSnackbarOpen && (
-				<Snackbar
-					onClose={() => setIsSnackbarOpen(false)}
-					before={<CircleAlert size={28} color='#FF3B30' />}
-					description={snackbarMessage}
-					style={{ zIndex: 100, marginBottom: 80 }}
-				>
-					Ошибка
-				</Snackbar>
 			)}
 		</AppRoot>
 	)

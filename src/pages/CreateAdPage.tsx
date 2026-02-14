@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { CircleAlert } from 'lucide-react'
 import {
-	AppRoot,
-	Snackbar,
+	AppRoot
 } from '@telegram-apps/telegram-ui'
 import { categories } from '../constants';
+import { useSnackbar } from '../providers/SnackbarProvider'
 import { AdCreateHeader } from '../components/AdCreateHeader'
 import { CategoriesSelect } from '../components/CategoriesSelect';
 import { ImageUploader } from '../components/ImageUploader'
@@ -19,6 +18,7 @@ import { CitySelect } from '../components/CitySelect';
 
 export const CreateAdPage = () => {
 	const navigate = useNavigate()
+	const { showSnackbar } = useSnackbar()
 
 	const categoriesWithoutAll = categories.slice(1)
 
@@ -29,19 +29,12 @@ export const CreateAdPage = () => {
 		categoriesWithoutAll[0].id
 	)
 	const [images, setImages] = useState<ImageItem[]>([])
-	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false)
 	const [errors, setErrors] = useState({
 		title: false,
 		description: false,
 		images: false,
 	})
 	const [isLoading, setIsLoading] = useState(false)
-
-	const [snackbarMessage, setSnackbarMessage] = useState('')
-	const showSnackbar = (message: string) => {
-		setSnackbarMessage(message)
-		setIsSnackbarOpen(true)
-	}
 
 	const handleImagesChange = (newImages: ImageItem[]) => {
 		setImages(newImages)
@@ -87,7 +80,7 @@ export const CreateAdPage = () => {
 			newErrors.description ||
 			newErrors.images
 		) {
-			showSnackbar('Заполните все обязательные поля')
+			showSnackbar('error', 'Ошибка', 'Заполните все обязательные поля')
 			return
 		}
 
@@ -117,9 +110,10 @@ export const CreateAdPage = () => {
 
 			await response.json()
 
-			navigate('/', { state: { adCreated: true } })
+			sessionStorage.setItem('adCreated', 'true')
+			navigate(-1)
 		} catch (error) {
-			showSnackbar('Не удалось опубликовать объявление')
+			showSnackbar('error', 'Ошибка', 'Не удалось опубликовать объявление')
 		} finally {
 			setIsLoading(false)
 		}
@@ -160,17 +154,6 @@ export const CreateAdPage = () => {
 			</div>
 
 			<PublishButton btnText="Опубликовать" onClick={handleSave} loading={isLoading} />
-
-			{isSnackbarOpen && (
-				<Snackbar
-					onClose={() => setIsSnackbarOpen(false)}
-					before={<CircleAlert size={28} color='#FF3B30' />}
-					description={snackbarMessage} 
-					style={{ zIndex: 100, marginBottom: 80 }}
-				>
-					Ошибка
-				</Snackbar>
-			)}
 		</AppRoot>
 	)
 }

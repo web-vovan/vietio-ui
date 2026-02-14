@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { useSearchParams, useLocation } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
+import { useSnackbar } from '../providers/SnackbarProvider'
 import { EmptySearch } from '../components/EmptySearch'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { CategoriesBar } from '../components/CategoriesBar'
@@ -13,12 +14,10 @@ import { FabMenu } from '../components/FabMenu'
 import { Ad } from '../types'
 import { categories } from '../constants'
 import { apiClient } from '../api/apiClient'
-import { Snackbar } from '@telegram-apps/telegram-ui'
-import { CircleCheck } from 'lucide-react'
 
 export const FeedPage = () => {
-	const location = useLocation()
 	const [searchParams, setSearchParams] = useSearchParams()
+	const { showSnackbar } = useSnackbar()
 
 	const currentCategoryId = parseInt(searchParams.get('category_id') || '0')
 	const currentSort = searchParams.get('sort') || 'date_desc'
@@ -69,26 +68,22 @@ export const FeedPage = () => {
 		setSearchParams(newParams)
 	}
 
-	const [isSuccessSnackbarOpen, setIsSuccessSnackbarOpen] = useState(false)
-	const [successSnackBarTitle, setSuccessSnackBarTitle] = useState('')
-	const [successSnackBarDescription, setSuccessSnackBarDescription] =
-		useState('')
-	const showSuccessSnackBar = (title: string, description: string) => {
-		setSuccessSnackBarTitle(title)
-		setSuccessSnackBarDescription(description)
-		setIsSuccessSnackbarOpen(true)
-	}
-
 	useEffect(() => {
-		// Проверяем, пришли ли мы сюда после успешного создания объявления
-		if (location.state?.adCreated) {
-			showSuccessSnackBar(
+		if (sessionStorage.getItem('adCreated') === 'true') {
+			showSnackbar(
+				'success',
 				'Объявление опубликовано',
-				'Теперь его видят другие пользователи',
 			)
-			window.history.replaceState({}, document.title)
+			sessionStorage.removeItem('adCreated')
 		}
-	}, [location])
+		if (sessionStorage.getItem('adDeleted') === 'true') {
+			showSnackbar(
+				'success',
+				'Объявление удалено',
+			)
+			sessionStorage.removeItem('adDeleted')
+		}
+	}, [])
 
 	useEffect(() => {
 		const isFilterChanged =
@@ -219,17 +214,6 @@ export const FeedPage = () => {
 			</div>
 
 			<FabMenu />
-
-			{isSuccessSnackbarOpen && (
-				<Snackbar
-					onClose={() => setIsSuccessSnackbarOpen(false)}
-					before={<CircleCheck size={28} color='#34C759' />}
-					description={successSnackBarDescription}
-					style={{ zIndex: 100, marginBottom: 80 }}
-				>
-					{successSnackBarTitle}
-				</Snackbar>
-			)}
 		</>
 	)
 }

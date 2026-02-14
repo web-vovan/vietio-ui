@@ -8,6 +8,7 @@ import { CreateAdPage } from './pages/CreateAdPage'
 import { AdDetailsPage } from './pages/AdDetailsPage'
 import { EditAdPage } from './pages/EditAdPage'
 import { MyAdsPage } from './pages/MyAdsPage'
+import { SnackbarProvider } from './providers/SnackbarProvider'
 
 const DeepLinkHandler = () => {
 	const navigate = useNavigate()
@@ -28,24 +29,26 @@ const DeepLinkHandler = () => {
 export const App = () => (
 	<AppRoot>
 		<BrowserRouter>
-			<DeepLinkHandler />
-			
-			<Routes>
-				{/* Главная */}
-				<Route path='/' element={<FeedPage />} />
+			<SnackbarProvider>
+				<DeepLinkHandler />
 
-				{/* Страница создания */}
-				<Route path='/create' element={<CreateAdPage />} />
+				<Routes>
+					{/* Главная */}
+					<Route path='/' element={<FeedPage />} />
 
-				{/* Страница редактирования */}
-				<Route path='/ads/:uuid/edit' element={<EditAdPage />} />
+					{/* Страница создания */}
+					<Route path='/create' element={<CreateAdPage />} />
 
-				{/* Детальная страница */}
-				<Route path='/ads/:uuid' element={<AdDetailsPage />} />
+					{/* Страница редактирования */}
+					<Route path='/ads/:uuid/edit' element={<EditAdPage />} />
 
-				{/* Мор объявления */}
-				<Route path='/my' element={<MyAdsPage />} />
-			</Routes>
+					{/* Детальная страница */}
+					<Route path='/ads/:uuid' element={<AdDetailsPage />} />
+
+					{/* Мор объявления */}
+					<Route path='/my' element={<MyAdsPage />} />
+				</Routes>
+			</SnackbarProvider>
 		</BrowserRouter>
 	</AppRoot>
 )

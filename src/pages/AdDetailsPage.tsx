@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useSnackbar } from '../providers/SnackbarProvider'
 import {
 	AppRoot,
 	Button,
 	FixedLayout,
 	Modal,
-	Snackbar,
 	Text,
 } from '@telegram-apps/telegram-ui'
 
@@ -18,11 +17,11 @@ import { AdDetailLoader } from '../components/AdDetailLoader'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { AdDetail } from '../types'
 import { apiClient } from '../api/apiClient'
-import { CircleCheck, Pencil, Trash } from 'lucide-react'
+import { Pencil, Trash } from 'lucide-react'
 
 export const AdDetailsPage = () => {
 	const navigate = useNavigate()
-	const location = useLocation()
+	const { showSnackbar } = useSnackbar()
 
 	const { uuid } = useParams()
 
@@ -33,16 +32,6 @@ export const AdDetailsPage = () => {
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
-
-	const [isSuccessSnackbarOpen, setIsSuccessSnackbarOpen] = useState(false)
-	const [successSnackBarTitle, setSuccessSnackBarTitle] = useState('')
-	const [successSnackBarDescription, setSuccessSnackBarDescription] =
-		useState('')
-	const showSuccessSnackBar = (title: string, description: string) => {
-		setSuccessSnackBarTitle(title)
-		setSuccessSnackBarDescription(description)
-		setIsSuccessSnackbarOpen(true)
-	}
 
 	const fetchAdDetails = async () => {
 		try {
@@ -91,15 +80,14 @@ export const AdDetailsPage = () => {
 	}, [uuid])
 
 	useEffect(() => {
-		// Проверяем, пришли ли мы сюда после успешного изменения объявления
-		if (location.state?.adUpdated) {
-			showSuccessSnackBar(
+		if (sessionStorage.getItem('adUpdated') === 'true') {
+			showSnackbar(
+				'success',
 				'Объявление изменено',
-				'Теперь его видят другие пользователи',
 			)
-			window.history.replaceState({}, document.title)
+			sessionStorage.removeItem('adUpdated')
 		}
-	}, [location])
+	}, [])
 
 	const handleDelete = async () => {
 		try {
@@ -110,12 +98,11 @@ export const AdDetailsPage = () => {
 
 			if (!response.ok) throw new Error('Ошибка при удалении')
 
-			// Успех -> закрываем модалку и идем на главную
 			setIsDeleteModalOpen(false)
-			navigate('/', { replace: true })
+			sessionStorage.setItem('adDeleted', 'true')
+			navigate(-1)
 		} catch (e) {
-			console.error(e)
-			alert('Не удалось удалить объявление')
+			showSnackbar('error', 'Ошибка', 'Не удалось удалить объявление')
 			setIsDeleteModalOpen(false)
 		} finally {
 			setIsDeleting(false)
@@ -195,17 +182,6 @@ export const AdDetailsPage = () => {
 				)}
 			</FixedLayout>
 
-			{isSuccessSnackbarOpen && (
-				<Snackbar
-					onClose={() => setIsSuccessSnackbarOpen(false)}
-					before={<CircleCheck size={28} color='#34C759' />}
-					description={successSnackBarDescription}
-					style={{ zIndex: 100, marginBottom: 80 }}
-				>
-					{successSnackBarTitle}
-				</Snackbar>
-			)}
-
 			<Modal
 				header={<Modal.Header>Удаление объявления</Modal.Header>}
 				open={isDeleteModalOpen}
@@ -244,6 +220,7 @@ export const AdDetailsPage = () => {
 							}}
 							stretched
 							loading={isDeleting}
+							disabled={isDeleting}
 							onClick={handleDelete}
 						>
 							Удалить
