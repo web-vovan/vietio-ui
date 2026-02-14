@@ -159,7 +159,7 @@ export const CreateAdPage = () => {
 				<AdPriceField price={price} onChange={priceChange} />
 			</div>
 
-			<PublishButton onClick={handleSave} loading={isLoading} />
+			<PublishButton btnText="Опубликовать" onClick={handleSave} loading={isLoading} />
 
 			{isSnackbarOpen && (
 				<Snackbar

@@ -2,10 +2,11 @@ import { Button, FixedLayout } from "@telegram-apps/telegram-ui"
 
 type PublishButtonProps = {
 	loading: boolean
+	btnText: string
 	onClick: () => void
 }
 
-export const PublishButton = ({ onClick, loading }: PublishButtonProps) => {
+export const PublishButton = ({ btnText, onClick, loading }: PublishButtonProps) => {
 	return (
 		<FixedLayout
 			vertical='bottom'
@@ -22,7 +23,7 @@ export const PublishButton = ({ onClick, loading }: PublishButtonProps) => {
 				loading={loading}
 				disabled={loading}
 			>
-				Опубликовать
+				{btnText}
 			</Button>
 		</FixedLayout>
 	)

@@ -3,7 +3,7 @@ import { Placeholder, Button } from '@telegram-apps/telegram-ui'
 import { useNavigate } from 'react-router-dom'
 import { MainHeader } from './MainHeader'
 
-export type ErrorType = 'not_found' | 'bad_request' | 'server_error'
+export type ErrorType = 'not_found' | 'bad_request' | 'server_error' | 'forbidden'
 
 type ErrorPlaceholderProps = {
 	errorType: ErrorType
@@ -64,6 +64,29 @@ export const ErrorPlaceholder = ({
 				<Placeholder
 					header='Неверная ссылка'
 					description='Похоже, адрес объявления указан с ошибкой'
+				>
+					<img
+						alt='error'
+						src='https://xelene.me/telegram.gif'
+						style={{
+							width: 100,
+							height: 100,
+							display: 'block',
+							margin: '0 auto 20px',
+						}}
+					/>
+					<Button size='l' stretched onClick={goHome}>
+						На главную
+					</Button>
+				</Placeholder>
+			)
+		}
+
+		if (errorType === 'forbidden') {
+			return (
+				<Placeholder
+					header='Ой, ошибка'
+					description='У вас нет доступа у этой странице'
 				>
 					<img
 						alt='error'

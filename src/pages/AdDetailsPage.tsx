@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
 	AppRoot,
 	Button,
 	FixedLayout,
 	Modal,
+	Snackbar,
 	Text,
 } from '@telegram-apps/telegram-ui'
 
@@ -16,10 +18,11 @@ import { AdDetailLoader } from '../components/AdDetailLoader'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { AdDetail } from '../types'
 import { apiClient } from '../api/apiClient'
-import { Pencil, Trash } from 'lucide-react'
+import { CircleCheck, Pencil, Trash } from 'lucide-react'
 
 export const AdDetailsPage = () => {
 	const navigate = useNavigate()
+	const location = useLocation()
 
 	const { uuid } = useParams()
 
@@ -30,6 +33,16 @@ export const AdDetailsPage = () => {
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
+
+	const [isSuccessSnackbarOpen, setIsSuccessSnackbarOpen] = useState(false)
+	const [successSnackBarTitle, setSuccessSnackBarTitle] = useState('')
+	const [successSnackBarDescription, setSuccessSnackBarDescription] =
+		useState('')
+	const showSuccessSnackBar = (title: string, description: string) => {
+		setSuccessSnackBarTitle(title)
+		setSuccessSnackBarDescription(description)
+		setIsSuccessSnackbarOpen(true)
+	}
 
 	const fetchAdDetails = async () => {
 		try {
@@ -76,6 +89,17 @@ export const AdDetailsPage = () => {
 	useEffect(() => {
 		fetchAdDetails()
 	}, [uuid])
+
+	useEffect(() => {
+		// Проверяем, пришли ли мы сюда после успешного изменения объявления
+		if (location.state?.adUpdated) {
+			showSuccessSnackBar(
+				'Объявление изменено',
+				'Теперь его видят другие пользователи',
+			)
+			window.history.replaceState({}, document.title)
+		}
+	}, [location])
 
 	const handleDelete = async () => {
 		try {
@@ -170,6 +194,17 @@ export const AdDetailsPage = () => {
 					<MessageButton username={ad.owner_username} />
 				)}
 			</FixedLayout>
+
+			{isSuccessSnackbarOpen && (
+				<Snackbar
+					onClose={() => setIsSuccessSnackbarOpen(false)}
+					before={<CircleCheck size={28} color='#34C759' />}
+					description={successSnackBarDescription}
+					style={{ zIndex: 100, marginBottom: 80 }}
+				>
+					{successSnackBarTitle}
+				</Snackbar>
+			)}
 
 			<Modal
 				header={<Modal.Header>Удаление объявления</Modal.Header>}

@@ -3,7 +3,7 @@ import { ChevronLeft } from "lucide-react";
 
 import { useNavigate } from 'react-router-dom'
 
-export const AdCreateHeader = () => {
+export const AdEditHeader = () => {
 	const navigate = useNavigate()
 
 	return (
@@ -30,13 +30,13 @@ export const AdCreateHeader = () => {
 					left: 16,
 					width: 44,
 					height: 44,
-				}}
+				}} 
 			>
 				<ChevronLeft size={28} color='var(--tgui--link_color)' />
 			</IconButton>
 
 			<Text weight='2' style={{ fontSize: 18 }}>
-				Новое объявление
+				Редактирование
 			</Text>
 		</FixedLayout>
 	)
