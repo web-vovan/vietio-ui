@@ -7,7 +7,7 @@ import { FeedPage } from './pages/FeedPage'
 import { CreateAdPage } from './pages/CreateAdPage'
 import { AdDetailsPage } from './pages/AdDetailsPage'
 import { EditAdPage } from './pages/EditAdPage'
-import { MyAdsPage } from './pages/MyAdsPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { SnackbarProvider } from './providers/SnackbarProvider'
 
 const DeepLinkHandler = () => {
@@ -45,8 +45,8 @@ export const App = () => (
 					{/* Детальная страница */}
 					<Route path='/ads/:uuid' element={<AdDetailsPage />} />
 
-					{/* Мор объявления */}
-					<Route path='/my' element={<MyAdsPage />} />
+					{/* Профиль */}
+					<Route path='/my' element={<ProfilePage />} />
 				</Routes>
 			</SnackbarProvider>
 		</BrowserRouter>

@@ -3,16 +3,18 @@ import React, { useState, useEffect } from 'react'
 import { EmptySearch } from '../components/EmptySearch'
 import { useSnackbar } from '../providers/SnackbarProvider'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
-import { MyAdsHeader } from '../components/MyAdsHeader'
+import { ProfileHeader } from '../components/ProfileHeader'
+import { Support } from '../components/Support'
 import { AdCard } from '../components/AdCard'
 import { Loader } from '../components/Loader'
+import { Text } from '@telegram-apps/telegram-ui'
 
 import { Ad } from '../types'
 import { apiClient } from '../api/apiClient'
 
-export const MyAdsPage = () => {
+export const ProfilePage = () => {
 	const { showSnackbar } = useSnackbar()
-	
+
 	const [ads, setAds] = useState<Ad[]>([])
 	const [totalCount, setTotalCount] = useState<number>(0)
 	const [isLoading, setIsLoading] = useState(true)
@@ -25,6 +27,10 @@ export const MyAdsPage = () => {
 				'Объявление удалено',
 			)
 			sessionStorage.removeItem('adDeleted')
+		}
+		if (sessionStorage.getItem('adCreated') === 'true') {
+			showSnackbar('success', 'Объявление опубликовано')
+			sessionStorage.removeItem('adCreated')
 		}
 	}, [])
 
@@ -68,7 +74,7 @@ export const MyAdsPage = () => {
 
 	return (
 		<>
-			<MyAdsHeader />
+			<ProfileHeader />
 
 			<div
 				style={{
@@ -76,6 +82,19 @@ export const MyAdsPage = () => {
 					paddingBottom: 40,
 				}}
 			>
+				<Support />
+
+				<div style={{ padding: '0 16px', marginTop: 24, marginBottom: 12 }}>
+					<Text weight='2' style={{ fontSize: 20 }}>
+						Мои объявления{' '}
+						{totalCount > 0 && (
+							<span style={{ color: 'var(--tgui--hint_color)', marginLeft: 6 }}>
+								{totalCount}
+							</span>
+						)}
+					</Text>
+				</div>
+
 				{isLoading && ads.length === 0 && <Loader size='l' />}
 
 				{errorType && !isLoading && (

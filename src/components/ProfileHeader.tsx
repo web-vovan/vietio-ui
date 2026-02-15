@@ -3,7 +3,7 @@ import { ChevronLeft } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
 
-export const MyAdsHeader = () => {
+export const ProfileHeader = () => {
 	const navigate = useNavigate()
 
 	return (
@@ -36,7 +36,7 @@ export const MyAdsHeader = () => {
 			</IconButton>
 
 			<Text weight='2' style={{ fontSize: 18 }}>
-				Мои объявления
+				Мой профиль
 			</Text>
 		</FixedLayout>
 	)
