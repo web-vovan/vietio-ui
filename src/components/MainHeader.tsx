@@ -18,7 +18,6 @@ export const MainHeader = () => {
 				justifyContent: 'space-between',
 			}}
 		>
-			{/* Логотип / возврат наверх */}
 			<div
 				onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
 				style={{
