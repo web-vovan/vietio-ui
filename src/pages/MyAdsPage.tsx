@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
 import { EmptySearch } from '../components/EmptySearch'
+import { useSnackbar } from '../providers/SnackbarProvider'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { MyAdsHeader } from '../components/MyAdsHeader'
 import { AdCard } from '../components/AdCard'
@@ -10,10 +11,22 @@ import { Ad } from '../types'
 import { apiClient } from '../api/apiClient'
 
 export const MyAdsPage = () => {
-	const [ads, setAds] = useState<Ad[]>([]) // Список объявлений
-	const [totalCount, setTotalCount] = useState<number>(0) // Количество объявлений
-	const [isLoading, setIsLoading] = useState(true) // Индикатор загрузки
+	const { showSnackbar } = useSnackbar()
+	
+	const [ads, setAds] = useState<Ad[]>([])
+	const [totalCount, setTotalCount] = useState<number>(0)
+	const [isLoading, setIsLoading] = useState(true)
 	const [errorType, setErrorType] = useState<ErrorType | null>(null)
+
+	useEffect(() => {
+		if (sessionStorage.getItem('adDeleted') === 'true') {
+			showSnackbar(
+				'success',
+				'Объявление удалено',
+			)
+			sessionStorage.removeItem('adDeleted')
+		}
+	}, [])
 
 	useEffect(() => {
 		const fetchAds = async () => {
@@ -55,23 +68,23 @@ export const MyAdsPage = () => {
 
 	return (
 		<>
-			{/* --- ФИКСИРОВАННАЯ ШАПКА --- */}
 			<MyAdsHeader />
 
-			{/* --- ОСНОВНОЙ КОНТЕЙНЕР --- */}
-			<div style={{ paddingTop: 70, paddingBottom: 40 }}>
-				{/* Initial loading */}
+			<div
+				style={{
+					paddingTop: 90,
+					paddingBottom: 40,
+				}}
+			>
 				{isLoading && ads.length === 0 && <Loader size='l' />}
 
-				{/* Ошибка загрузки */}
 				{errorType && !isLoading && (
-					<ErrorPlaceholder showHeader={true} errorType={errorType || 'server_error'} />
+					<ErrorPlaceholder errorType={errorType || 'server_error'} />
 				)}
 
 				{/* Нет результатов */}
 				{!isLoading && !errorType && totalCount === 0 && <EmptySearch />}
 
-				{/* Данные загрузились */}
 				{!errorType && ads.length > 0 && (
 					<div
 						style={{
