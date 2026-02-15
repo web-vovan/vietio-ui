@@ -19,7 +19,19 @@ export const setupTelegramInitDataMock = async () => {
 			win.Telegram = {
 				WebApp: {
 					initData: responseBody.init_data,
-					initDataUnsafe: {},
+					initDataUnsafe: {
+						query_id: 'AAF4...',
+						user: {
+							id: 123456789,
+							first_name: 'Test',
+							last_name: 'User',
+							username: username || undefined,
+							language_code: 'ru',
+							allows_write_to_pm: true,
+						},
+						auth_date: Math.floor(Date.now() / 1000),
+						hash: 'mock_hash_string',
+					},
 					version: '6.0',
 					platform: 'tdesktop',
 					colorScheme: 'light',
@@ -36,7 +48,6 @@ export const setupTelegramInitDataMock = async () => {
 					viewportHeight: 600,
 					viewportStableHeight: 600,
 
-					// === ВОТ ЭТОГО НЕ ХВАТАЛО ===
 					// eslint-disable-next-line @typescript-eslint/no-unused-vars
 					onEvent: (eventType: string, callback: () => void) => {
 						console.log(`[Mock] Subscribed to event: ${eventType}`)

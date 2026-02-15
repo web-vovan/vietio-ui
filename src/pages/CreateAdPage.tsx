@@ -15,6 +15,7 @@ import { ImageItem } from '../types'
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/apiClient';
 import { CitySelect } from '../components/CitySelect';
+import { AdRulesInfo } from '../components/AdRulesInfo';
 
 export const CreateAdPage = () => {
 	const navigate = useNavigate()
@@ -57,6 +58,10 @@ export const CreateAdPage = () => {
 		setPrice(value)
 	}
 
+	const hasUsername = Boolean(
+		window.Telegram?.WebApp?.initDataUnsafe?.user?.username,
+	)
+
 	// Очистка памяти при уходе со страницы
 	useEffect(() => {
 		return () => {
@@ -65,6 +70,15 @@ export const CreateAdPage = () => {
 	}, []) // eslint-disable-line react-hooks/exhaustive-deps
 
 	const handleSave = async () => {
+		if (!hasUsername) {
+			showSnackbar(
+				'error',
+				'Ошибка',
+				'Установите Username в настройках Telegram',
+			)
+			return
+		}
+
 		const rawPrice = price.replace(/\s/g, '')
 
 		const newErrors = {
@@ -151,9 +165,15 @@ export const CreateAdPage = () => {
 				/>
 
 				<AdPriceField price={price} onChange={priceChange} />
+
+				<AdRulesInfo />
 			</div>
 
-			<PublishButton btnText="Опубликовать" onClick={handleSave} loading={isLoading} />
+			<PublishButton
+				btnText='Опубликовать'
+				onClick={handleSave}
+				loading={isLoading}
+			/>
 		</AppRoot>
 	)
 }
