@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { SegmentedControl, Text } from '@telegram-apps/telegram-ui' // Добавили SegmentedControl
 
 import { EmptySearch } from '../components/EmptySearch'
 import { useSnackbar } from '../providers/SnackbarProvider'
@@ -6,14 +7,19 @@ import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { ProfileHeader } from '../components/ProfileHeader'
 import { Support } from '../components/Support'
 import { AdCard } from '../components/AdCard'
+import { AdCardSold } from '../components/AdCardSold' // Импорт новой карточки
 import { Loader } from '../components/Loader'
-import { Text } from '@telegram-apps/telegram-ui'
 
 import { Ad } from '../types'
 import { apiClient } from '../api/apiClient'
+import { EmptyHistory } from '../components/EmptyHistory'
+
+type TabType = 'active' | 'sold'
 
 export const ProfilePage = () => {
 	const { showSnackbar } = useSnackbar()
+
+	const [activeTab, setActiveTab] = useState<TabType>('active')
 
 	const [ads, setAds] = useState<Ad[]>([])
 	const [totalCount, setTotalCount] = useState<number>(0)
@@ -22,37 +28,32 @@ export const ProfilePage = () => {
 
 	useEffect(() => {
 		if (sessionStorage.getItem('adDeleted') === 'true') {
-			showSnackbar(
-				'success',
-				'Объявление удалено',
-			)
+			showSnackbar('success', 'Объявление удалено')
 			sessionStorage.removeItem('adDeleted')
 		}
 		if (sessionStorage.getItem('adCreated') === 'true') {
 			showSnackbar('success', 'Объявление опубликовано')
 			sessionStorage.removeItem('adCreated')
 		}
-		if (sessionStorage.getItem('adSold') === 'true') {
-			showSnackbar('success', 'Статус изменен')
-			sessionStorage.removeItem('adSold')
-		}
-	}, [])
+	}, []) // eslint-disable-line react-hooks/exhaustive-deps
 
 	useEffect(() => {
 		const fetchAds = async () => {
 			try {
 				setIsLoading(true)
 				setErrorType(null)
+				setTotalCount(0)
+				setAds([])
 
-				const response = await apiClient("/api/my")
+				const endpoint = activeTab === 'active' ? '/api/my' : '/api/my/sold'
 
-				if (!response.ok) {
-					throw new Error(`server error`)
-				}
+				const response = await apiClient(endpoint)
+
+				if (!response.ok) throw new Error(`server error`)
 
 				const rawData = await response.json()
-
 				const rawItems = rawData.items || []
+
 				setTotalCount(rawData.total || 0)
 
 				const adaptedAds: Ad[] = rawItems.map((item: any) => ({
@@ -62,7 +63,8 @@ export const ProfilePage = () => {
 					currency: 'VND',
 					city: item.city,
 					image: item.image,
-					category_id: item.category_id
+					category_id: item.category_id,
+					created_at: item.created_at,
 				}))
 
 				setAds(adaptedAds)
@@ -74,7 +76,7 @@ export const ProfilePage = () => {
 		}
 
 		fetchAds()
-	}, [])
+	}, [activeTab])
 
 	return (
 		<>
@@ -88,9 +90,26 @@ export const ProfilePage = () => {
 			>
 				<Support />
 
-				<div style={{ padding: '0 16px', marginTop: 24, marginBottom: 12 }}>
+				<div style={{ margin: '0 16px 20px 16px' }}>
+					<SegmentedControl>
+						<SegmentedControl.Item
+							selected={activeTab === 'active'}
+							onClick={() => setActiveTab('active')}
+						>
+							Активные
+						</SegmentedControl.Item>
+						<SegmentedControl.Item
+							selected={activeTab === 'sold'}
+							onClick={() => setActiveTab('sold')}
+						>
+							Продано
+						</SegmentedControl.Item>
+					</SegmentedControl>
+				</div>
+
+				<div style={{ padding: '0 16px', marginBottom: 12 }}>
 					<Text weight='2' style={{ fontSize: 20 }}>
-						Мои объявления{' '}
+						{activeTab === 'active' ? 'Мои объявления' : 'История продаж'}
 						{totalCount > 0 && (
 							<span style={{ color: 'var(--tgui--hint_color)', marginLeft: 6 }}>
 								{totalCount}
@@ -99,31 +118,47 @@ export const ProfilePage = () => {
 					</Text>
 				</div>
 
-				{isLoading && ads.length === 0 && <Loader size='l' />}
+				{isLoading && <Loader size='l' />}
 
 				{errorType && !isLoading && (
 					<ErrorPlaceholder errorType={errorType || 'server_error'} />
 				)}
 
-				{/* Нет результатов */}
-				{!isLoading && !errorType && totalCount === 0 && <EmptySearch />}
+				{!isLoading && !errorType && totalCount === 0 && (
+					<div style={{ marginTop: 20 }}>
+						{activeTab === 'active' ? (
+							<EmptySearch /> // "Ничего не найдено" с лупой
+						) : (
+							<EmptyHistory />
+						)}
+					</div>
+				)}
 
-				{!errorType && ads.length > 0 && (
-					<div
-						style={{
-							display: 'grid',
-							gridTemplateColumns: '1fr 1fr',
-							gap: 12,
-							padding: '0 16px',
-						}}
-					>
-						{ads.map(item => {
-							return (
-								<div key={item.uuid}>
-									<AdCard item={item} />
-								</div>
-							)
-						})}
+				{!isLoading && !errorType && ads.length > 0 && (
+					<div style={{ padding: '0 16px' }}>
+						{activeTab === 'active' && (
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: '1fr 1fr',
+									gap: 12,
+								}}
+							>
+								{ads.map(item => (
+									<div key={item.uuid}>
+										<AdCard item={item} />
+									</div>
+								))}
+							</div>
+						)}
+
+						{activeTab === 'sold' && (
+							<div style={{ display: 'flex', flexDirection: 'column' }}>
+								{ads.map(item => (
+									<AdCardSold key={item.uuid} item={item} />
+								))}
+							</div>
+						)}
 					</div>
 				)}
 			</div>

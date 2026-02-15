@@ -7,7 +7,7 @@ export const EmptySearch = () => {
 
 	return (
 		<Placeholder
-			header='Здесь пока пусто'
+			
 		>
 			<div
 				style={{

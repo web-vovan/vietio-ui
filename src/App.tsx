@@ -46,7 +46,7 @@ export const App = () => (
 					<Route path='/ads/:uuid' element={<AdDetailsPage />} />
 
 					{/* Профиль */}
-					<Route path='/my' element={<ProfilePage />} />
+					<Route path='/profile' element={<ProfilePage />} />
 				</Routes>
 			</SnackbarProvider>
 		</BrowserRouter>

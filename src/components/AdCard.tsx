@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import {  Image as ImageIcon } from 'lucide-react'
 import { Caption, Card, Text, Subheadline } from '@telegram-apps/telegram-ui'
 import { Ad } from '../types'
-import { formatPrice } from '../helpers/priceHelper'
+import { formatPrice } from '../helpers/helper'
 
 type AdCardProps = {
 	item: Ad

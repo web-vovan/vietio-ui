@@ -1,6 +1,6 @@
 import { List, Section, Text } from "@telegram-apps/telegram-ui"
 import { Calendar, MapPin } from "lucide-react"
-import { formatPrice } from '../helpers/priceHelper'
+import { formatPrice } from '../helpers/helper'
 
 type AdDetailInfoProp = {
     price: number
