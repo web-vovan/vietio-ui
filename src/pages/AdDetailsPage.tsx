@@ -17,43 +17,42 @@ import { AdDetailLoader } from '../components/AdDetailLoader'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { AdDetail } from '../types'
 import { apiClient } from '../api/apiClient'
-import { Pencil, Trash } from 'lucide-react'
+import { Pencil, Trash, CheckCircle } from 'lucide-react'
 
 export const AdDetailsPage = () => {
 	const navigate = useNavigate()
 	const { showSnackbar } = useSnackbar()
-
 	const { uuid } = useParams()
 
 	const [ad, setAd] = useState<AdDetail | null>(null)
 	const [isLoading, setIsLoading] = useState(true)
-
 	const [errorType, setErrorType] = useState<ErrorType | null>(null)
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 
+	const [isSoldModalOpen, setIsSoldModalOpen] = useState(false)
+	const [isMarkingSold, setIsMarkingSold] = useState(false)
+
 	const fetchAdDetails = async () => {
 		try {
 			setIsLoading(true)
 			setErrorType(null)
-
 			const response = await apiClient(`/api/ads/${uuid}`)
 
 			if (response.status === 400) {
 				setErrorType('bad_request')
 				return
 			}
-
 			if (response.status === 404) {
 				setErrorType('not_found')
 				return
 			}
-
 			if (!response.ok) throw new Error('server error')
 
 			const rawData = await response.json()
 
+			// ... твой маппинг данных ...
 			const adaptedAd: AdDetail = {
 				uuid: rawData.uuid,
 				title: rawData.title,
@@ -66,7 +65,6 @@ export const AdDetailsPage = () => {
 				images: rawData.images,
 				created_at: rawData.created_at,
 			}
-
 			setAd(adaptedAd)
 		} catch (err) {
 			setErrorType('server_error')
@@ -74,17 +72,14 @@ export const AdDetailsPage = () => {
 			setIsLoading(false)
 		}
 	}
-	
+
 	useEffect(() => {
 		fetchAdDetails()
 	}, [uuid])
 
 	useEffect(() => {
 		if (sessionStorage.getItem('adUpdated') === 'true') {
-			showSnackbar(
-				'success',
-				'Объявление изменено',
-			)
+			showSnackbar('success', 'Объявление изменено')
 			sessionStorage.removeItem('adUpdated')
 		}
 	}, [])
@@ -95,7 +90,6 @@ export const AdDetailsPage = () => {
 			const response = await apiClient(`/api/ads/${uuid}`, {
 				method: 'DELETE',
 			})
-
 			if (!response.ok) throw new Error('Ошибка при удалении')
 
 			setIsDeleteModalOpen(false)
@@ -106,6 +100,27 @@ export const AdDetailsPage = () => {
 			setIsDeleteModalOpen(false)
 		} finally {
 			setIsDeleting(false)
+		}
+	}
+
+	const handleMarkAsSold = async () => {
+		try {
+			setIsMarkingSold(true)
+			const response = await apiClient(`/api/ads/${uuid}/sold`, {
+				method: 'POST',
+			})
+
+			if (!response.ok) throw new Error('ошибка')
+
+			setIsSoldModalOpen(false)
+		
+			sessionStorage.setItem('adSold', 'true')
+			navigate(-1)
+		} catch (e) {
+			showSnackbar('error', 'Ошибка', 'Не удалось обновить статус')
+			setIsSoldModalOpen(false)
+		} finally {
+			setIsMarkingSold(false)
 		}
 	}
 
@@ -122,13 +137,15 @@ export const AdDetailsPage = () => {
 			/>
 		)
 	}
+
 	return (
 		<AppRoot>
 			<AdDetailHeader uuid={uuid} title={ad?.title} />
 			<div
 				style={{
 					paddingTop: 'calc(61px + env(safe-area-inset-top))',
-					paddingBottom: 100,
+					// Увеличили отступ снизу, так как кнопок стало больше
+					paddingBottom: 160,
 				}}
 			>
 				<ImageGallery images={ad.images || []} />
@@ -151,30 +168,53 @@ export const AdDetailsPage = () => {
 				}}
 			>
 				{ad.is_owner ? (
-					// --- ЕСЛИ ВЛАДЕЛЕЦ: Показываем "Редактировать" и "Удалить" ---
-					<div style={{ display: 'flex', gap: 12 }}>
+					<div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
 						<Button
 							size='l'
-							mode='bezeled'
-							stretched
-							onClick={() => navigate(`/ads/${ad.uuid}/edit`)} // Переход на редактирование
-							before={<Pencil size={18} />}
+							style={{
+								flex: 1,
+								backgroundColor: 'var(--tgui--green)',
+								color: '#ffffff',
+							}}
+							onClick={() => setIsSoldModalOpen(true)}
+							before={<CheckCircle size={20} />}
 						>
-							Изменить
+							Продано
 						</Button>
 
 						<Button
 							size='l'
-							// mode="destructive" пока не во всех версиях работает, поэтому красим стилями
+							mode='bezeled'
+							onClick={() => navigate(`/ads/${ad.uuid}/edit`)}
 							style={{
+								width: 50,
+								height: 50,
+								padding: 0,
+								flexShrink: 0,
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+							}}
+						>
+							<Pencil size={20} />
+						</Button>
+
+						<Button
+							size='l'
+							onClick={() => setIsDeleteModalOpen(true)}
+							style={{
+								width: 50,
+								height: 50,
+								padding: 0,
+								flexShrink: 0,
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
 								backgroundColor: 'var(--tgui--destructive_text_color)',
 								color: 'white',
 							}}
-							stretched
-							onClick={() => setIsDeleteModalOpen(true)} // Открываем модалку
-							before={<Trash size={18} />}
 						>
-							Удалить
+							<Trash size={20} />
 						</Button>
 					</div>
 				) : (
@@ -183,9 +223,9 @@ export const AdDetailsPage = () => {
 			</FixedLayout>
 
 			<Modal
-				header={<Modal.Header>Удаление объявления</Modal.Header>}
+				header={<Modal.Header>Удаление</Modal.Header>}
 				open={isDeleteModalOpen}
-				onOpenChange={open => setIsDeleteModalOpen(open)}
+				onOpenChange={setIsDeleteModalOpen}
 			>
 				<div style={{ padding: '0 20px 20px 20px' }}>
 					<Text
@@ -196,12 +236,9 @@ export const AdDetailsPage = () => {
 							color: 'var(--tgui--hint_color)',
 						}}
 					>
-						Вы действительно хотите удалить это объявление? Это действие нельзя
-						будет отменить.
+						Удалить объявление навсегда?
 					</Text>
-
 					<div style={{ display: 'flex', gap: 12 }}>
-						{/* Кнопка Отмена */}
 						<Button
 							size='l'
 							mode='bezeled'
@@ -210,8 +247,6 @@ export const AdDetailsPage = () => {
 						>
 							Отмена
 						</Button>
-
-						{/* Кнопка Удалить */}
 						<Button
 							size='l'
 							style={{
@@ -228,7 +263,46 @@ export const AdDetailsPage = () => {
 					</div>
 				</div>
 			</Modal>
+
+			<Modal
+				header={<Modal.Header>Успешная продажа?</Modal.Header>}
+				open={isSoldModalOpen}
+				onOpenChange={setIsSoldModalOpen}
+			>
+				<div style={{ padding: '0 20px 20px 20px' }}>
+					<Text
+						style={{
+							display: 'block',
+							marginBottom: 20,
+							textAlign: 'center',
+							color: 'var(--tgui--hint_color)',
+						}}
+					>
+						Поздравляем! Объявление будет снято с публикации и перемещено в
+						архив.
+					</Text>
+					<div style={{ display: 'flex', gap: 12 }}>
+						<Button
+							size='l'
+							mode='bezeled'
+							stretched
+							onClick={() => setIsSoldModalOpen(false)}
+						>
+							Eщё продаю
+						</Button>
+						<Button
+							size='l'
+							style={{ backgroundColor: 'var(--tgui--green)', color: 'white' }}
+							stretched
+							loading={isMarkingSold}
+							disabled={isMarkingSold}
+							onClick={handleMarkAsSold}
+						>
+							Да, продано!
+						</Button>
+					</div>
+				</div>
+			</Modal>
 		</AppRoot>
 	)
 }
-

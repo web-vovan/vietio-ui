@@ -32,6 +32,10 @@ export const ProfilePage = () => {
 			showSnackbar('success', 'Объявление опубликовано')
 			sessionStorage.removeItem('adCreated')
 		}
+		if (sessionStorage.getItem('adSold') === 'true') {
+			showSnackbar('success', 'Статус изменен')
+			sessionStorage.removeItem('adSold')
+		}
 	}, [])
 
 	useEffect(() => {

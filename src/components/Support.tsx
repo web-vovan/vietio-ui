@@ -43,15 +43,11 @@ export const Support = () => {
 						lineHeight: '16px',
 					}}
 				>
-					Поможем с любым вопросом
+					Пишите, не стесняйтесь 🙂
 				</Text>
 			</div>
 
-			<Button
-				size='s'
-				mode='bezeled'
-				onClick={handleSupportClick}
-			>
+			<Button size='s' mode='bezeled' onClick={handleSupportClick}>
 				Написать
 			</Button>
 		</div>

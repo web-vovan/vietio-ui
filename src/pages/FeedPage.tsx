@@ -83,6 +83,10 @@ export const FeedPage = () => {
 			)
 			sessionStorage.removeItem('adDeleted')
 		}
+		if (sessionStorage.getItem('adSold') === 'true') {
+			showSnackbar('success', 'Статус изменен')
+			sessionStorage.removeItem('adSold')
+		}
 	}, [])
 
 	useEffect(() => {
