@@ -29,9 +29,7 @@ export const MainHeader = () => {
 				<VietioLogo />
 			</div>
 
-			{/* Город (контекст) */}
 			<div
-				onClick={() => console.log('Смена города')}
 				style={{
 					display: 'flex',
 					alignItems: 'center',
