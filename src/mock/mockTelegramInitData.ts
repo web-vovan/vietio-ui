@@ -6,13 +6,14 @@ export const setupTelegramInitDataMock = async () => {
     const DEFAULT_USER = 'web_vovan'
 
 	if (
-		process.env.NODE_ENV === 'development' &&
+		// todo убрать после теста
+		// process.env.NODE_ENV === 'development' &&
 		!win.Telegram?.WebApp?.initData
 	) {
 		try {
-            let username = localStorage.getItem(STORAGE_KEY)
-           
-            username = username ?? DEFAULT_USER
+			let username = localStorage.getItem(STORAGE_KEY)
+
+			username = username ?? DEFAULT_USER
 			const res = await fetch(`/api/test-init-data/${username}`)
 			const responseBody = await res.json()
 
