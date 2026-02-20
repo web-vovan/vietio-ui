@@ -38,7 +38,7 @@ export const ImageUploader = ({ error, images, onChange }: ImageUploaderProps) =
 		}
 
 		const newImages: ImageItem[] = filesToProcess.map(file => ({
-			id: crypto.randomUUID(), 
+			id: Date.now().toString(36) + Math.random().toString(36).slice(2),
 			file,
 			preview: URL.createObjectURL(file),
 		}))
