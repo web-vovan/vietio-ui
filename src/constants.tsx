@@ -1,21 +1,19 @@
 import {
 	List,
-	Car,
+	Package,
+	Bike,
 	Home,
+	ClipboardList,
 	Briefcase,
-	Smartphone,
-	Shirt,
-	Sofa,
-	Wrench,
+	Shapes,
 } from 'lucide-react'
 
 export const categories = [
 	{ id: 0, name: 'Все', icon: List },
-	{ id: 1, name: 'Авто', icon: Car },
-	{ id: 2, name: 'Жильё', icon: Home },
-	{ id: 3, name: 'Работа', icon: Briefcase },
-	{ id: 4, name: 'Техника', icon: Smartphone },
-	{ id: 5, name: 'Одежда', icon: Shirt },
-	{ id: 6, name: 'Для дома', icon: Sofa },
-	{ id: 7, name: 'Услуги', icon: Wrench },
+	{ id: 1, name: 'Маркет', icon: Package },
+	{ id: 2, name: 'Байки', icon: Bike },
+	{ id: 3, name: 'Жильё', icon: Home },
+	{ id: 4, name: 'Услуги', icon: ClipboardList },
+	{ id: 5, name: 'Работа', icon: Briefcase },
+	{ id: 6, name: 'Разное', icon: Shapes },
 ]
