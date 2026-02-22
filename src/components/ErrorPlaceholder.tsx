@@ -33,7 +33,7 @@ export const ErrorPlaceholder = ({
 	showHeader,
 }: ErrorPlaceholderProps) => {
 	const navigate = useNavigate()
-	const goHome = () => navigate('/', { replace: true })
+	const goHome = () => navigate('/')
 
 	const content = (() => {
 		if (errorType === 'not_found') {
