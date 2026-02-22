@@ -1,6 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Camera, X } from 'lucide-react'
 import { IconButton } from '@telegram-apps/telegram-ui'
+import useEmblaCarousel from 'embla-carousel-react'
+import { useSpring, animated } from '@react-spring/web'
+import { useDrag } from '@use-gesture/react'
 
 interface ImageGalleryProps {
 	images: string[]
@@ -8,46 +11,98 @@ interface ImageGalleryProps {
 
 export const ImageGallery = ({ images }: ImageGalleryProps) => {
 	const [activeIndex, setActiveIndex] = useState(0)
-
-	// Состояние для полноэкранного режима
 	const [isFullScreen, setIsFullScreen] = useState(false)
 
-	// Рефы для скролл-контейнеров
-	const sliderRef = useRef<HTMLDivElement>(null)
-	const fullScreenSliderRef = useRef<HTMLDivElement>(null)
+	// --- EMBLA: Маленькая галерея ---
+	const [emblaRef, emblaApi] = useEmblaCarousel({
+		align: 'center',
+		containScroll: 'trimSnaps',
+		duration: 40,
+	})
 
-	// Обработчик скролла (универсальный)
-	const handleScroll = (
-		e: React.UIEvent<HTMLDivElement>,
-		setIndex: (i: number) => void,
-	) => {
-		const scrollLeft = e.currentTarget.scrollLeft
-		const width = e.currentTarget.offsetWidth
-		const index = Math.round(scrollLeft / width)
-		setIndex(index)
+	// --- EMBLA: Полноэкранная галерея ---
+	const [fullScreenRef, fullScreenApi] = useEmblaCarousel({
+		startIndex: activeIndex,
+		align: 'center',
+		containScroll: 'trimSnaps',
+		duration: 80,
+		dragFree: true,
+	})
+
+	const onSelect = useCallback((api: any) => {
+		if (!api) return
+		setActiveIndex(api.selectedScrollSnap())
+	}, [])
+
+	useEffect(() => {
+		if (!emblaApi) return
+		emblaApi.on('select', onSelect)
+		onSelect(emblaApi)
+	}, [emblaApi, onSelect])
+
+	useEffect(() => {
+		if (!fullScreenApi) return
+		fullScreenApi.on('select', onSelect)
+	}, [fullScreenApi, onSelect])
+
+	// --- ЖЕСТЫ И АНИМАЦИЯ ---
+	// Убрали scale из конфигурации
+	const [{ y, bgOpacity }, api] = useSpring(() => ({
+		y: 0,
+		bgOpacity: 1,
+		config: { tension: 300, friction: 30 },
+	}))
+
+	const closeGallery = () => {
+		setIsFullScreen(false)
+		setTimeout(() => {
+			// Сброс только позиции и прозрачности
+			api.start({ y: 0, bgOpacity: 1, immediate: true })
+		}, 300)
 	}
 
-	// Блокировка скролла основного сайта, когда открыт фуллскрин
-	useEffect(() => {
-		if (isFullScreen) {
-			document.body.style.overflow = 'hidden'
-			// При открытии прокручиваем к текущему слайду
-			if (fullScreenSliderRef.current) {
-				fullScreenSliderRef.current.scrollLeft =
-					fullScreenSliderRef.current.offsetWidth * activeIndex
-			}
-		} else {
-			document.body.style.overflow = ''
-		}
-		return () => {
-			document.body.style.overflow = ''
-		}
-	}, [isFullScreen, activeIndex]) // activeIndex здесь нужен, чтобы при открытии попасть на нужное фото
+	const bind = useDrag(
+		({
+			active,
+			movement: [, my],
+			velocity: [, vy],
+			direction: [, dy],
+			cancel,
+		}) => {
+			if (my < -50) cancel()
 
-	// Обработчик клика по фото (открытие)
-	const handleImageClick = (index: number) => {
-		setActiveIndex(index) // Синхронизируем индекс
+			if (active) {
+				api.start({
+					y: my,
+					bgOpacity: Math.max(0, 1 - my / 500), // Только прозрачность
+					immediate: true,
+				})
+			} else {
+				// eslint-disable-next-line @typescript-eslint/no-extra-parens
+				if (my > 150 || (vy > 0.5 && dy > 0)) {
+					// Улетаем вниз без изменения размера
+					api.start({ y: window.innerHeight, bgOpacity: 0 })
+					closeGallery()
+				} else {
+					// Возврат на место
+					api.start({ y: 0, bgOpacity: 1 })
+				}
+			}
+		},
+		{
+			axis: 'y',
+			filterTaps: true,
+			from: () => [0, y.get()],
+			rubberband: true,
+		},
+	)
+
+	const openFullScreen = (index: number) => {
+		setActiveIndex(index)
 		setIsFullScreen(true)
+		if (emblaApi) emblaApi.scrollTo(index)
+		// Сброс при открытии
+		api.start({ y: 0, bgOpacity: 1, immediate: true })
 	}
 
 	if (!images || images.length === 0) {
@@ -71,78 +126,74 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 
 	return (
 		<>
-			{/* --- МАЛЕНЬКАЯ ГАЛЕРЕЯ (КАК БЫЛО) --- */}
+			{/* --- МАЛЕНЬКАЯ ГАЛЕРЕЯ --- */}
 			<div
 				style={{
 					position: 'relative',
 					height: 300,
 					backgroundColor: 'var(--tgui--bg_color)',
+					overflow: 'hidden',
 				}}
 			>
 				<div
-					ref={sliderRef}
-					className='hide-scrollbar'
-					onScroll={e => handleScroll(e, setActiveIndex)}
-					style={{
-						display: 'flex',
-						overflowX: 'auto',
-						scrollSnapType: 'x mandatory',
-						height: '100%',
-						width: '100%',
-						scrollbarWidth: 'none',
-					}}
+					className='embla'
+					ref={emblaRef}
+					style={{ height: '100%', overflow: 'hidden' }}
 				>
-					{images.map((src, index) => (
-						<div
-							key={index}
-							onClick={() => handleImageClick(index)} // <--- Клик для открытия
-							style={{
-								minWidth: '100%',
-								height: '100%',
-								position: 'relative',
-								scrollSnapAlign: 'center',
-								overflow: 'hidden',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-							}}
-						>
-							{/* Размытый фон */}
-							<img
-								src={src}
-								alt=''
+					<div
+						className='embla__container'
+						style={{ display: 'flex', height: '100%' }}
+					>
+						{images.map((src, index) => (
+							<div
+								key={index}
+								onClick={() => openFullScreen(index)}
 								style={{
-									position: 'absolute',
-									top: 0,
-									left: 0,
-									width: '100%',
-									height: '100%',
-									objectFit: 'cover',
-									filter: 'blur(20px) brightness(0.7)', // Чуть темнее фон
-									transform: 'scale(1.1)',
-									zIndex: 1,
-								}}
-							/>
-							{/* Основное фото */}
-							<img
-								src={src}
-								alt={`slide-${index}`}
-								style={{
-									maxWidth: '100%',
-									maxHeight: '100%',
-									width: 'auto',
-									height: 'auto',
-									objectFit: 'contain',
+									flex: '0 0 100%',
+									minWidth: 0,
 									position: 'relative',
-									zIndex: 2,
-									boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+									height: '100%',
 								}}
-							/>
-						</div>
-					))}
+							>
+								<div
+									style={{
+										width: '100%',
+										height: '100%',
+										position: 'relative',
+										backgroundColor: 'var(--tgui--secondary_bg_color)',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+									}}
+								>
+									<div
+										style={{
+											position: 'absolute',
+											opacity: 0.3,
+											color: 'var(--tgui--hint_color)',
+										}}
+									>
+										<Camera size={32} />
+									</div>
+
+									<img
+										src={src}
+										alt={`slide-${index}`}
+										loading={index === 0 ? 'eager' : 'lazy'}
+										style={{
+											maxWidth: '100%',
+											maxHeight: '100%',
+											objectFit: 'contain',
+											zIndex: 2,
+										}}
+									/>
+								</div>
+							</div>
+						))}
+					</div>
 				</div>
 
-				{/* Индикаторы (Точки) */}
+				{/* Точки */}
 				{images.length > 1 && (
 					<div
 						style={{
@@ -154,6 +205,7 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 							justifyContent: 'center',
 							gap: 6,
 							zIndex: 10,
+							pointerEvents: 'none',
 						}}
 					>
 						{images.map((_, i) => (
@@ -164,8 +216,8 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 									height: i === activeIndex ? 8 : 6,
 									borderRadius: '50%',
 									backgroundColor:
-										i === activeIndex ? '#fff' : 'rgba(255,255,255,0.5)',
-									transition: 'all 0.2s',
+										i === activeIndex ? '#fff' : 'rgba(255, 255, 255, 0.5)',
+									boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
 								}}
 							/>
 						))}
@@ -182,25 +234,36 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 						left: 0,
 						right: 0,
 						bottom: 0,
-						backgroundColor: '#000', // Черный фон
-						zIndex: 9999, // Поверх всего (даже хедера Telegram UI)
-						display: 'flex',
-						flexDirection: 'column',
+						zIndex: 9999,
+						touchAction: 'none',
 					}}
 				>
-					{/* Кнопка закрыть */}
-					<div
+					<animated.div
 						style={{
 							position: 'absolute',
-							top: 'calc(10px + env(safe-area-inset-top))', // Учитываем челку
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							backgroundColor: '#000',
+							opacity: bgOpacity,
+							zIndex: -1,
+						}}
+					/>
+
+					<animated.div
+						style={{
+							position: 'absolute',
+							top: 'calc(10px + env(safe-area-inset-top))',
 							right: 16,
 							zIndex: 10001,
+							opacity: bgOpacity,
 						}}
 					>
 						<IconButton
 							mode='plain'
 							size='l'
-							onClick={() => setIsFullScreen(false)}
+							onClick={closeGallery}
 							style={{
 								color: '#fff',
 								backgroundColor: 'rgba(0,0,0,0.5)',
@@ -209,66 +272,64 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 						>
 							<X size={28} />
 						</IconButton>
-					</div>
+					</animated.div>
 
-					{/* Слайдер на весь экран */}
-					<div
-						ref={fullScreenSliderRef}
-						className='hide-scrollbar'
-						// Здесь мы обновляем activeIndex, чтобы при закрытии вернуться к тому же фото
-						onScroll={e => handleScroll(e, setActiveIndex)}
+					<animated.div
+						{...bind()}
+						className='embla embla--fullscreen'
+						ref={fullScreenRef}
 						style={{
-							display: 'flex',
-							overflowX: 'auto',
-							scrollSnapType: 'x mandatory',
 							height: '100%',
-							width: '100%',
-							scrollbarWidth: 'none',
-							alignItems: 'center', // Центрируем вертикально
+							overflow: 'hidden',
+							y: y, // Только Y, без scale
+							touchAction: 'pan-x',
 						}}
 					>
-						{images.map((src, index) => (
-							<div
-								key={index}
-								style={{
-									minWidth: '100%', // 100% ширины экрана
-									height: '100%',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									scrollSnapAlign: 'center',
-									position: 'relative',
-								}}
-							>
-								<img
-									src={src}
-									alt={`full-slide-${index}`}
+						<div
+							className='embla__container'
+							style={{ display: 'flex', height: '100%' }}
+						>
+							{images.map((src, index) => (
+								<div
+									key={index}
 									style={{
-										maxWidth: '100%',
-										maxHeight: '100%',
-										objectFit: 'contain', // Фото целиком
+										flex: '0 0 100%',
+										minWidth: 0,
+										height: '100%',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
 										userSelect: 'none',
 									}}
-								/>
-							</div>
-						))}
-					</div>
+								>
+									<img
+										src={src}
+										alt={`full-slide-${index}`}
+										style={{
+											maxWidth: '100%',
+											maxHeight: '100%',
+											objectFit: 'contain',
+											pointerEvents: 'none',
+										}}
+									/>
+								</div>
+							))}
+						</div>
+					</animated.div>
 
-					{/* Счетчик фото внизу (для удобства) */}
-					<div
+					<animated.div
 						style={{
 							position: 'absolute',
-							bottom: 'calc(20px + env(safe-area-inset-bottom))',
-							left: 0,
-							right: 0,
+							bottom: 40,
+							width: '100%',
 							textAlign: 'center',
-							color: 'rgba(255,255,255,0.8)',
-							fontSize: 14,
+							color: '#fff',
+							opacity: bgOpacity,
 							pointerEvents: 'none',
 						}}
 					>
 						{activeIndex + 1} из {images.length}
-					</div>
+					</animated.div>
 				</div>
 			)}
 		</>
