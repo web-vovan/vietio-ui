@@ -18,8 +18,7 @@ const DeepLinkHandler = () => {
 
 		if (tg?.initDataUnsafe?.start_param) {
 			const startParam = tg.initDataUnsafe.start_param
-
-			navigate(`/ads/${startParam}`, { replace: true })
+			navigate(`/ads/${startParam}`)
 		}
 	}, [navigate])
 

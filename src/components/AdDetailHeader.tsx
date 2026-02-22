@@ -19,7 +19,7 @@ export const AdDetailHeader = ({ uuid, title }: AdDetailHeaderProps) => {
 		const appLink = `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${uuid}`
 
 		const messageText = title
-			? `Посмотри это объявление на Vietio: ${title}`
+			? `Посмотри это объявление в Нячанге: "${title}"`
 			: 'Классное объявление во Вьетнаме!'
 
 		const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(appLink)}&text=${encodeURIComponent(messageText)}`
@@ -28,6 +28,14 @@ export const AdDetailHeader = ({ uuid, title }: AdDetailHeaderProps) => {
 			window.Telegram.WebApp.openTelegramLink(shareUrl)
 		} else {
 			window.open(shareUrl, '_blank')
+		}
+	}
+
+	const handleBack = () => {
+		if (window.history.length <= 1) {
+			navigate('/')
+		} else {
+			navigate(-1)
 		}
 	}
 
@@ -48,7 +56,7 @@ export const AdDetailHeader = ({ uuid, title }: AdDetailHeaderProps) => {
 			<IconButton
 				mode='plain'
 				size='l'
-				onClick={() => navigate(-1)}
+				onClick={handleBack}
 				style={{ width: 44, height: 44 }} // Иногда нужно уточнить размеры
 			>
 				<ChevronLeft size={28} color='var(--tgui--link_color)' />
