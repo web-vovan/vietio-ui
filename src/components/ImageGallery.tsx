@@ -26,7 +26,7 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 		align: 'center',
 		containScroll: 'trimSnaps',
 		duration: 80,
-		dragFree: true,
+		dragFree: false,
 	})
 
 	const onSelect = useCallback((api: any) => {

@@ -44,11 +44,6 @@ export const AdCard = ({ item }: AdCardProps) => {
 								left: 0,
 								right: 0,
 								bottom: 0,
-								backgroundImage: `url(${item.image})`,
-								backgroundPosition: 'center',
-								backgroundSize: 'cover',
-								filter: 'blur(20px) brightness(0.9)',
-								transform: 'scale(1.2)',
 								zIndex: 0,
 							}}
 						/>
@@ -61,7 +56,7 @@ export const AdCard = ({ item }: AdCardProps) => {
 								zIndex: 1,
 								width: '100%',
 								height: '100%',
-								objectFit: 'contain',
+								objectFit: 'cover',
 								transition: 'transform 0.3s ease',
 							}}
 						/>
