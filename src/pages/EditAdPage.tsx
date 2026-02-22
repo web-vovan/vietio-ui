@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-	AppRoot,
 	Button,
 	Placeholder,
 } from '@telegram-apps/telegram-ui'
@@ -187,7 +186,7 @@ export const EditAdPage = () => {
 	}
 
 	return (
-		<AppRoot>
+		<>
 			<AdEditHeader />
 
 			{isPageLoading && <AdDetailLoader />}
@@ -241,6 +240,6 @@ export const EditAdPage = () => {
 					/>
 				</>
 			)}
-		</AppRoot>
+		</>
 	)
 }

@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import {
-	AppRoot
-} from '@telegram-apps/telegram-ui'
 import { categories } from '../constants';
 import { useSnackbar } from '../providers/SnackbarProvider'
 import { AdCreateHeader } from '../components/AdCreateHeader'
@@ -134,7 +131,7 @@ export const CreateAdPage = () => {
 	}
 
 	return (
-		<AppRoot>
+		<>
 			<AdCreateHeader />
 			<div
 				style={{
@@ -174,6 +171,6 @@ export const CreateAdPage = () => {
 				onClick={handleSave}
 				loading={isLoading}
 			/>
-		</AppRoot>
+		</>
 	)
 }

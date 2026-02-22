@@ -3,7 +3,6 @@
 	"name": "tgui-example",
 	"version": "1.0.0",
 	"private": true,
-	"homepage": "./",
 	"devDependencies": {
 		"@types/jest": "^27.5.2",
 		"@types/node": "^16.18.73",

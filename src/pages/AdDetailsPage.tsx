@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useSnackbar } from '../providers/SnackbarProvider'
 import {
-	AppRoot,
 	Button,
 	FixedLayout,
 	Modal,
@@ -139,7 +138,7 @@ export const AdDetailsPage = () => {
 	}
 
 	return (
-		<AppRoot>
+		<>
 			<AdDetailHeader uuid={uuid} title={ad?.title} />
 			<div
 				style={{
@@ -303,6 +302,6 @@ export const AdDetailsPage = () => {
 					</div>
 				</div>
 			</Modal>
-		</AppRoot>
+		</>
 	)
 }
