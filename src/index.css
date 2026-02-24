@@ -3,3 +3,14 @@ body {
   padding: 0;
   background: var(--tg-theme-secondary-bg-color);
 }
+
+.form-field > div {
+  background: transparent !important;
+  border: none;
+  border-bottom: 1px solid var(--tgui--separator_color);
+  border-radius: 0;
+}
+
+.form-field h6 {
+  background: transparent !important;
+}

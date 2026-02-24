@@ -1,4 +1,5 @@
 import { Text, Input } from "@telegram-apps/telegram-ui"
+import { FormField } from "../wrappers/FormField"
 
 type AdPriceFieldProps = {
 	price: string
@@ -15,14 +16,16 @@ const formatPriceInput = (value: string) => {
 
 export const AdPriceField = ({ price, onChange }: AdPriceFieldProps) => {
 	return (
-		<Input
-			header='Цена'
-			placeholder='0'
-			type='text'
-			inputMode='numeric'
-			value={price}
-			onChange={e => onChange(formatPriceInput(e.target.value))}
-			after={<Text style={{ color: 'var(--tgui--hint_color)' }}>₫</Text>}
-		/>
+		<FormField>
+			<Input
+				header='Цена'
+				placeholder='0'
+				type='text'
+				inputMode='numeric'
+				value={price}
+				onChange={e => onChange(formatPriceInput(e.target.value))}
+				after={<Text style={{ color: 'var(--tgui--hint_color)' }}>₫</Text>}
+			/>
+		</FormField>
 	)
 }

@@ -1,4 +1,5 @@
 import { Caption, Select } from "@telegram-apps/telegram-ui";
+import { FormField } from "../wrappers/FormField";
 
 type CounterAndSortProps = {
 	isLoading: boolean
@@ -33,11 +34,17 @@ export const CounterAndSort = ({
 			<div style={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
 				<div style={{ width: 'auto', minWidth: 220 }}>
 					{' '}
-					<Select value={currentSort} onChange={handleSortChange}>
-						<option value='date_desc'>Сначала новые</option>
-						<option value='price_asc'>Дешевле</option>
-						<option value='price_desc'>Дороже</option>
-					</Select>
+					<FormField>
+						<Select
+							value={currentSort}
+							onChange={handleSortChange}
+							className='custom-select'
+						>
+							<option value='date_desc'>Сначала новые</option>
+							<option value='price_asc'>Дешевле</option>
+							<option value='price_desc'>Дороже</option>
+						</Select>
+					</FormField>
 				</div>
 			</div>
 		</div>

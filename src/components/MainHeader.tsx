@@ -8,11 +8,9 @@ export const MainHeader = () => {
 			vertical='top'
 			style={{
 				padding: '12px 16px',
-				background: 'rgba(var(--tgui--bg_color_rgb), 0.9)',
-				borderBottom: '1px solid var(--tgui--secondary_bg_color)',
-				backdropFilter: 'blur(10px)',
+				background: 'var(--tgui--bg_color)',
+				boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
 				zIndex: 10,
-
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'space-between',
