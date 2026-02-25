@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
 	Button,
+	List,
 	Placeholder,
+	Section,
 } from '@telegram-apps/telegram-ui'
 
 import { categories } from '../constants'
@@ -196,41 +198,50 @@ export const EditAdPage = () => {
 					<div
 						style={{
 							paddingTop: 'calc(61px + env(safe-area-inset-top))',
+							backgroundColor: 'var(--tgui--secondary_bg_color)',
 							paddingBottom: 100,
 						}}
 					>
-						<CategoriesSelect
-							categories={categoriesWithoutAll}
-							currentCategoryId={categoryId}
-							onCategoryChange={id => setCategoryId(id)}
-						/>
-						<CitySelect />
-
-						<ImageUploader
-							images={images}
-							error={errors.images}
-							onChange={handleImagesChange}
-						/>
-
-						<AdTitleField
-							title={title}
-							error={errors.title}
-							onChange={val => {
-								setTitle(val)
-								if (errors.title) setErrors(prev => ({ ...prev, title: false }))
-							}}
-						/>
-						<AdDescriptionField
-							description={description}
-							error={errors.description}
-							onChange={val => {
-								setDescription(val)
-								if (errors.description)
-									setErrors(prev => ({ ...prev, description: false }))
-							}}
-						/>
-
-						<AdPriceField price={price} onChange={val => setPrice(val)} />
+						<List>
+							<Section>
+								<ImageUploader
+									images={images}
+									error={errors.images}
+									onChange={handleImagesChange}
+								/>
+							</Section>
+							<Section>
+								<AdTitleField
+									title={title}
+									error={errors.title}
+									onChange={val => {
+										setTitle(val)
+										if (errors.title)
+											setErrors(prev => ({ ...prev, title: false }))
+									}}
+								/>
+								<AdPriceField price={price} onChange={val => setPrice(val)} />
+							</Section>
+							<Section>
+								<CategoriesSelect
+									categories={categoriesWithoutAll}
+									currentCategoryId={categoryId}
+									onCategoryChange={id => setCategoryId(id)}
+								/>
+								<CitySelect />
+							</Section>
+							<Section>
+								<AdDescriptionField
+									description={description}
+									error={errors.description}
+									onChange={val => {
+										setDescription(val)
+										if (errors.description)
+											setErrors(prev => ({ ...prev, description: false }))
+									}}
+								/>
+							</Section>
+						</List>
 					</div>
 
 					<PublishButton

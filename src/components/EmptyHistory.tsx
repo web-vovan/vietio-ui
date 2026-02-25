@@ -32,17 +32,6 @@ export const EmptyHistory = () => {
 			<Text weight='2' style={{ fontSize: 20, marginBottom: 8 }}>
 				Пока продаж не было
 			</Text>
-
-			<Text
-				style={{
-					fontSize: 16,
-					color: 'var(--tgui--hint_color)',
-					maxWidth: 280,
-					lineHeight: '1.4',
-				}}
-			>
-				Здесь будет история ваших успехов
-			</Text>
 		</div>
 	)
 }

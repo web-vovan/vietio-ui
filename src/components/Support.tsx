@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Text } from '@telegram-apps/telegram-ui'
+import { Cell, Button } from '@telegram-apps/telegram-ui'
 import { LifeBuoy } from 'lucide-react'
 
 export const Support = () => {
@@ -15,41 +15,19 @@ export const Support = () => {
 	return (
 		<div
 			style={{
-				margin: '0 16px 16px 16px',
-				padding: '16px',
-				borderRadius: 16,
-				background: 'var(--tgui--secondary_bg_color)',
-				display: 'flex',
-				flexDirection: 'row',
-				alignItems: 'center',
-				justifyContent: 'space-between',
-				gap: 12,
+				marginTop: '12px',
 			}}
 		>
-			<div
-				style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}
+			<Cell
+				before={<LifeBuoy size={24} color='var(--tgui--link_color)' />}
+				after={
+					<Button size='s' mode='bezeled' onClick={handleSupportClick}>
+						Написать
+					</Button>
+				}
 			>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-					<LifeBuoy size={20} color='var(--tgui--link_color)' />
-					<Text weight='2' style={{ fontSize: 16 }}>
-						Поддержка
-					</Text>
-				</div>
-
-				<Text
-					style={{
-						color: 'var(--tgui--hint_color)',
-						fontSize: 13,
-						lineHeight: '16px',
-					}}
-				>
-					Пишите, не стесняйтесь 🙂
-				</Text>
-			</div>
-
-			<Button size='s' mode='bezeled' onClick={handleSupportClick}>
-				Написать
-			</Button>
+				Поддержка
+			</Cell>
 		</div>
 	)
 }

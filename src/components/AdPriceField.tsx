@@ -22,7 +22,7 @@ export const AdPriceField = ({ price, onChange }: AdPriceFieldProps) => {
 			placeholder='0'
 			type='text'
 			inputMode='numeric'
-			value={price}
+			value={formatPriceInput(price)}
 			onChange={e => onChange(formatPriceInput(e.target.value))}
 			after={<Text style={{ color: 'var(--tgui--hint_color)' }}>₫</Text>}
 		/>

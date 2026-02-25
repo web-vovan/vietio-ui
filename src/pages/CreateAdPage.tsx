@@ -139,7 +139,6 @@ export const CreateAdPage = () => {
 					paddingTop: 'calc(61px + env(safe-area-inset-top))',
 					paddingBottom: 100,
 					backgroundColor: 'var(--tgui--secondary_bg_color)',
-					minHeight: '100vh',
 				}}
 			>
 				<List>

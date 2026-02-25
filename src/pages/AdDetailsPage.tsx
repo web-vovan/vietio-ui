@@ -16,7 +16,7 @@ import { AdDetailLoader } from '../components/AdDetailLoader'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { AdDetail } from '../types'
 import { apiClient } from '../api/apiClient'
-import { Pencil, Trash, CheckCircle } from 'lucide-react'
+import { Pencil, Trash, Check } from 'lucide-react'
 
 export const AdDetailsPage = () => {
 	const navigate = useNavigate()
@@ -176,7 +176,7 @@ export const AdDetailsPage = () => {
 								color: '#ffffff',
 							}}
 							onClick={() => setIsSoldModalOpen(true)}
-							before={<CheckCircle size={20} />}
+							before={<Check size={20} />}
 						>
 							Продано
 						</Button>

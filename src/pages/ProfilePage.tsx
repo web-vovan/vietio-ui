@@ -84,13 +84,15 @@ export const ProfilePage = () => {
 
 			<div
 				style={{
-					paddingTop: 90,
+					paddingTop: 'calc(60px + env(safe-area-inset-top))',
+					backgroundColor: 'var(--tgui--secondary_bg_color)',
 					paddingBottom: 40,
+					minHeight: 'calc(100vh - 60px)',
 				}}
 			>
 				<Support />
 
-				<div style={{ margin: '0 16px 20px 16px' }}>
+				<div style={{ margin: '20px 16px 20px 16px' }}>
 					<SegmentedControl>
 						<SegmentedControl.Item
 							selected={activeTab === 'active'}
@@ -126,11 +128,7 @@ export const ProfilePage = () => {
 
 				{!isLoading && !errorType && totalCount === 0 && (
 					<div style={{ marginTop: 20 }}>
-						{activeTab === 'active' ? (
-							<EmptySearch /> // "Ничего не найдено" с лупой
-						) : (
-							<EmptyHistory />
-						)}
+						{activeTab === 'active' ? <EmptySearch /> : <EmptyHistory />}
 					</div>
 				)}
 
