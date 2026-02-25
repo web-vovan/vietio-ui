@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/apiClient';
 import { CitySelect } from '../components/CitySelect';
 import { AdRulesInfo } from '../components/AdRulesInfo';
+import { List, Section } from '@telegram-apps/telegram-ui';
 
 export const CreateAdPage = () => {
 	const navigate = useNavigate()
@@ -137,31 +138,45 @@ export const CreateAdPage = () => {
 				style={{
 					paddingTop: 'calc(61px + env(safe-area-inset-top))',
 					paddingBottom: 100,
+					backgroundColor: 'var(--tgui--secondary_bg_color)',
+					minHeight: '100vh',
 				}}
 			>
-				<CategoriesSelect
-					categories={categoriesWithoutAll}
-					currentCategoryId={categoryId}
-					onCategoryChange={id => setCategoryId(id)}
-				/>
-				<CitySelect />
-				<ImageUploader
-					images={images}
-					error={errors.images}
-					onChange={newImages => handleImagesChange(newImages)}
-				/>
-				<AdTitleField
-					title={title}
-					error={errors.title}
-					onChange={titleChange}
-				/>
-				<AdDescriptionField
-					description={description}
-					error={errors.description}
-					onChange={descriptionChange}
-				/>
+				<List>
+					<Section>
+						<ImageUploader
+							images={images}
+							error={errors.images}
+							onChange={newImages => handleImagesChange(newImages)}
+						/>
+					</Section>
 
-				<AdPriceField price={price} onChange={priceChange} />
+					<Section>
+						<AdTitleField
+							title={title}
+							error={errors.title}
+							onChange={titleChange}
+						/>
+						<AdPriceField price={price} onChange={priceChange} />
+					</Section>
+
+					<Section>
+						<CategoriesSelect
+							categories={categoriesWithoutAll}
+							currentCategoryId={categoryId}
+							onCategoryChange={id => setCategoryId(id)}
+						/>
+						<CitySelect />
+					</Section>
+
+					<Section>
+						<AdDescriptionField
+							description={description}
+							error={errors.description}
+							onChange={descriptionChange}
+						/>
+					</Section>
+				</List>
 
 				<AdRulesInfo />
 			</div>

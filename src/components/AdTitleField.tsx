@@ -1,5 +1,5 @@
-import { Input } from "@telegram-apps/telegram-ui"
-import { FormField } from "../wrappers/FormField"
+import { Input } from '@telegram-apps/telegram-ui'
+import { Tag } from 'lucide-react'
 
 type AdTitleFieldProps = {
 	title: string
@@ -9,13 +9,12 @@ type AdTitleFieldProps = {
 
 export const AdTitleField = ({ title, error, onChange }: AdTitleFieldProps) => {
 	return (
-		<FormField>
-			<Input
-				header='Название'
-				value={title}
-				onChange={e => onChange(e.target.value)}
-				status={error ? 'error' : 'default'}
-			/>
-		</FormField>
+		<Input
+		header='Название'
+			before={<Tag size={24} color='var(--tgui--hint_color)' />}
+			value={title}
+			onChange={e => onChange(e.target.value)}
+			status={error ? 'error' : 'default'}
+		/>
 	)
 }

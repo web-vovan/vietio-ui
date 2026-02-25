@@ -1,5 +1,5 @@
 import { Text, Input } from "@telegram-apps/telegram-ui"
-import { FormField } from "../wrappers/FormField"
+import { Coins } from "lucide-react"
 
 type AdPriceFieldProps = {
 	price: string
@@ -16,16 +16,15 @@ const formatPriceInput = (value: string) => {
 
 export const AdPriceField = ({ price, onChange }: AdPriceFieldProps) => {
 	return (
-		<FormField>
-			<Input
-				header='Цена'
-				placeholder='0'
-				type='text'
-				inputMode='numeric'
-				value={price}
-				onChange={e => onChange(formatPriceInput(e.target.value))}
-				after={<Text style={{ color: 'var(--tgui--hint_color)' }}>₫</Text>}
-			/>
-		</FormField>
+		<Input
+			header='Цена'
+			before={<Coins size={24} color='var(--tgui--hint_color)' />}
+			placeholder='0'
+			type='text'
+			inputMode='numeric'
+			value={price}
+			onChange={e => onChange(formatPriceInput(e.target.value))}
+			after={<Text style={{ color: 'var(--tgui--hint_color)' }}>₫</Text>}
+		/>
 	)
 }

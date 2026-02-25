@@ -7,7 +7,7 @@ export const AdRulesInfo = () => {
 	const hasUsername = Boolean(user?.username)
 
 	return (
-		<div style={{ padding: '0 16px', marginTop: 24, marginBottom: 12 }}>
+		<div style={{ padding: '20px 16px 4px 16px' }}>
 			{!hasUsername && (
 				<div
 					style={{
@@ -53,7 +53,7 @@ export const AdRulesInfo = () => {
 
 			<div
 				style={{
-					margin: '0 auto', 
+					margin: '0 auto',
 					textAlign: 'center',
 				}}
 			>
