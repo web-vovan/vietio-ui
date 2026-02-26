@@ -19,7 +19,6 @@ import { AdEditHeader } from '../components/AdEditHeader'
 import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { ImageItem } from '../types'
 import { apiClient } from '../api/apiClient'
-import { CitySelect } from '../components/CitySelect'
 import { AdDetailLoader } from '../components/AdDetailLoader'
 
 export const EditAdPage = () => {
@@ -211,6 +210,11 @@ export const EditAdPage = () => {
 								/>
 							</Section>
 							<Section>
+								<CategoriesSelect
+									categories={categoriesWithoutAll}
+									currentCategoryId={categoryId}
+									onCategoryChange={id => setCategoryId(id)}
+								/>
 								<AdTitleField
 									title={title}
 									error={errors.title}
@@ -221,14 +225,6 @@ export const EditAdPage = () => {
 									}}
 								/>
 								<AdPriceField price={price} onChange={val => setPrice(val)} />
-							</Section>
-							<Section>
-								<CategoriesSelect
-									categories={categoriesWithoutAll}
-									currentCategoryId={categoryId}
-									onCategoryChange={id => setCategoryId(id)}
-								/>
-								<CitySelect />
 							</Section>
 							<Section>
 								<AdDescriptionField

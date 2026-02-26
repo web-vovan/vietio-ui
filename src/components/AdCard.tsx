@@ -130,6 +130,8 @@ export const AdCard = ({ item }: AdCardProps) => {
 						overflow: 'hidden',
 						fontSize: 13,
 						lineHeight: '18px',
+						overflowWrap: 'anywhere',
+						wordBreak: 'break-word',
 					}}
 				>
 					{item.title}

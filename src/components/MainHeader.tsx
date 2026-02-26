@@ -32,10 +32,7 @@ export const MainHeader = () => {
 					display: 'flex',
 					alignItems: 'center',
 					gap: 4,
-					padding: '6px 10px',
-					borderRadius: 16,
-					cursor: 'pointer',
-					background: 'var(--tgui--secondary_bg_color)',
+					opacity: 0.7,
 				}}
 			>
 				<MapPin size={14} color='var(--tgui--hint_color)' />

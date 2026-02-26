@@ -138,7 +138,7 @@ export const ProfilePage = () => {
 							<div
 								style={{
 									display: 'grid',
-									gridTemplateColumns: '1fr 1fr',
+									gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
 									gap: 12,
 								}}
 							>

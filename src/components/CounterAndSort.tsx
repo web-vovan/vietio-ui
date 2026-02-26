@@ -27,6 +27,7 @@ export const CounterAndSort = ({
 				justifyContent: 'space-between',
 				alignItems: 'center',
 				padding: '0 16px 12px 16px',
+				margin: '5px 0 2px 0',
 			}}
 		>
 			<Caption

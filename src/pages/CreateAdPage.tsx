@@ -11,7 +11,6 @@ import { AdPriceField } from '../components/AdPriceField'
 import { ImageItem } from '../types'
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/apiClient';
-import { CitySelect } from '../components/CitySelect';
 import { AdRulesInfo } from '../components/AdRulesInfo';
 import { List, Section } from '@telegram-apps/telegram-ui';
 
@@ -151,21 +150,18 @@ export const CreateAdPage = () => {
 					</Section>
 
 					<Section>
+						<CategoriesSelect
+							categories={categoriesWithoutAll}
+							currentCategoryId={categoryId}
+							onCategoryChange={id => setCategoryId(id)}
+						/>
+						
 						<AdTitleField
 							title={title}
 							error={errors.title}
 							onChange={titleChange}
 						/>
 						<AdPriceField price={price} onChange={priceChange} />
-					</Section>
-
-					<Section>
-						<CategoriesSelect
-							categories={categoriesWithoutAll}
-							currentCategoryId={categoryId}
-							onCategoryChange={id => setCategoryId(id)}
-						/>
-						<CitySelect />
 					</Section>
 
 					<Section>

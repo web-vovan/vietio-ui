@@ -68,7 +68,13 @@ export const AdDetailInfo = ({
 
 					<Text
 						weight='2'
-						style={{ fontSize: 20, marginTop: 8, display: 'block' }}
+						style={{
+							fontSize: 20,
+							marginTop: 8,
+							display: 'block',
+							overflowWrap: 'anywhere',
+							wordBreak: 'break-word',
+						}}
 					>
 						{title}
 					</Text>
@@ -95,7 +101,14 @@ export const AdDetailInfo = ({
 
 			<div>
 				<div style={{ padding: '0 20px 16px 20px', whiteSpace: 'pre-wrap' }}>
-					<Text style={{ fontSize: 16, lineHeight: '24px' }}>
+					<Text
+						style={{
+							fontSize: 16,
+							lineHeight: '24px',
+							overflowWrap: 'anywhere',
+							wordBreak: 'break-word',
+						}}
+					>
 						{description}
 					</Text>
 				</div>
