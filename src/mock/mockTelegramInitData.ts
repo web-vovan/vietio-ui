@@ -6,8 +6,7 @@ export const setupTelegramInitDataMock = async () => {
     const DEFAULT_USER = 'web_vovan'
 
 	if (
-		// todo убрать после теста
-		// process.env.NODE_ENV === 'development' &&
+		process.env.NODE_ENV === 'development' &&
 		!win.Telegram?.WebApp?.initData
 	) {
 		try {

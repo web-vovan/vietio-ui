@@ -12,16 +12,14 @@ export const bootstrapTelegram = () => {
 		}
 
 		// === DEV: мок ===
-		// todo убрать после теста
-		// if (process.env.NODE_ENV === 'development') {
+		if (process.env.NODE_ENV === 'development') {
 		const { setupTelegramInitDataMock } =
 			await import('./mock/mockTelegramInitData')
 		await setupTelegramInitDataMock()
 		return
-		// }
+		}
 
-		// todo убрать после теста
-		// throw new Error('Telegram WebApp initData not found')
+		throw new Error('Telegram WebApp initData not found')
 	})()
 
 	return bootstrapPromise
