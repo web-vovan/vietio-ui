@@ -14,6 +14,7 @@ import { apiClient } from '../api/apiClient';
 import { AdRulesInfo } from '../components/AdRulesInfo';
 import { List, Section } from '@telegram-apps/telegram-ui';
 import { useQueryClient } from '@tanstack/react-query'
+import imageCompression from 'browser-image-compression'
 
 export const CreateAdPage = () => {
 	const navigate = useNavigate()
@@ -106,11 +107,33 @@ export const CreateAdPage = () => {
 			formData.append('price', rawPrice)
 			formData.append('category_id', categoryId.toString())
 
-			images.forEach(img => {
+			// НАСТРОЙКИ СЖАТИЯ
+			const options = {
+				maxSizeMB: 1,
+				maxWidthOrHeight: 1200,
+				useWebWorker: true,
+				fileType: 'image/jpeg',
+				initialQuality: 0.8,
+			}
+
+			for (const img of images) {
 				if (img.file) {
-					formData.append('images', img.file)
+					try {
+						// Сжимаем и конвертируем
+						const compressedFile = await imageCompression(img.file, options)
+
+						const newFileName = img.file.name.replace(/\.[^/.]+$/, '') + '.jpg'
+						const fileToSend = new File([compressedFile], newFileName, {
+							type: 'image/jpeg',
+						})
+
+						formData.append('images', fileToSend)
+					} catch (error) {
+						console.error('Ошибка сжатия:', error)
+						formData.append('images', img.file)
+					}
 				}
-			})
+			}
 
 			const response = await apiClient('/api/ads', {
 				method: 'POST',
