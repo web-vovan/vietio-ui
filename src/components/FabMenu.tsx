@@ -5,19 +5,26 @@ import { Plus, User } from 'lucide-react'
 
 export const FabMenu = () => {
 	const navigate = useNavigate()
-
 	const [isVisible, setIsVisible] = useState(true)
-
 	const lastScrollY = useRef(0)
 
 	useEffect(() => {
+		const scrollContainer = document.getElementById('root')
+
+		if (!scrollContainer) return
+
 		const handleScroll = () => {
-			const currentScrollY = window.scrollY
+			const currentScrollY = scrollContainer.scrollTop
+
+			if (currentScrollY < 0) return
+
 			if (currentScrollY < 10) {
 				setIsVisible(true)
 				lastScrollY.current = currentScrollY
 				return
 			}
+
+			if (Math.abs(currentScrollY - lastScrollY.current) < 5) return
 
 			if (currentScrollY > lastScrollY.current) {
 				setIsVisible(false)
@@ -28,10 +35,10 @@ export const FabMenu = () => {
 			lastScrollY.current = currentScrollY
 		}
 
-		window.addEventListener('scroll', handleScroll)
+		scrollContainer.addEventListener('scroll', handleScroll, { passive: true })
 
 		return () => {
-			window.removeEventListener('scroll', handleScroll)
+			scrollContainer.removeEventListener('scroll', handleScroll)
 		}
 	}, [])
 
@@ -39,15 +46,18 @@ export const FabMenu = () => {
 		<div
 			style={{
 				position: 'fixed',
-				bottom: 24,
+				bottom: 24, // Немного увеличил отступ, чтобы на iPhone с "челкой" снизу не прилипало
 				right: 16,
 				display: 'flex',
 				flexDirection: 'column',
 				alignItems: 'center',
 				gap: 12,
 				zIndex: 100,
-				transform: isVisible ? 'translateY(0)' : 'translateY(150px)',
-				transition: 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+				// CSS transition
+				transform: isVisible ? 'translateY(0)' : 'translateY(200%)',
+				opacity: isVisible ? 1 : 0, // Добавил прозрачность для плавности
+				transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+				// Важно: отключаем клики, когда скрыто, чтобы не перекрывать контент под кнопкой
 				pointerEvents: isVisible ? 'auto' : 'none',
 			}}
 		>

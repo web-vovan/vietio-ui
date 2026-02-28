@@ -17,7 +17,6 @@ export const MainHeader = () => {
 			}}
 		>
 			<div
-				onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
 				style={{
 					display: 'flex',
 					alignItems: 'center',

@@ -150,7 +150,6 @@ export const FeedPage = () => {
 
 		sessionStorage.removeItem('feed_scroll')
 		setSearchParams(newParams)
-		window.scrollTo(0, 0)
 	}
 
 	const totalCount = data?.pages[0]?.total || 0

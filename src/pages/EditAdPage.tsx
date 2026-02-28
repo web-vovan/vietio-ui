@@ -161,6 +161,7 @@ export const EditAdPage = () => {
 			if (!response.ok) throw new Error('Ошибка при обновлении')
 
 			await queryClient.clear()
+			sessionStorage.removeItem('feed_scroll')
 
 			sessionStorage.setItem('adUpdated', 'true')
 			navigate(-1)

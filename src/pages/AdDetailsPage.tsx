@@ -44,11 +44,13 @@ export const AdDetailsPage = () => {
 			if (response.status === 400) {
 				setErrorType('bad_request')
 				await queryClient.clear()
+				sessionStorage.removeItem('feed_scroll')
 				return
 			}
 			if (response.status === 404) {
 				setErrorType('not_found')
 				await queryClient.clear()
+				sessionStorage.removeItem('feed_scroll')
 				return
 			}
 			if (!response.ok) throw new Error('server error')
@@ -71,6 +73,7 @@ export const AdDetailsPage = () => {
 			setAd(adaptedAd)
 		} catch (err) {
 			await queryClient.clear()
+			sessionStorage.removeItem('feed_scroll')
 			setErrorType('server_error')
 		} finally {
 			setIsLoading(false)
@@ -86,6 +89,10 @@ export const AdDetailsPage = () => {
 			showSnackbar('success', 'Объявление изменено')
 			sessionStorage.removeItem('adUpdated')
 		}
+		if (sessionStorage.getItem('adCreated') === 'true') {
+			showSnackbar('success', 'Объявление опубликовано')
+			sessionStorage.removeItem('adCreated')
+		}
 	}, [])
 
 	const handleDelete = async () => {
@@ -100,6 +107,7 @@ export const AdDetailsPage = () => {
 			sessionStorage.setItem('adDeleted', 'true')
 
 			await queryClient.clear()
+			sessionStorage.removeItem('feed_scroll')
 			navigate(-1)
 		} catch (e) {
 			showSnackbar('error', 'Ошибка', 'Не удалось удалить объявление')
@@ -121,6 +129,7 @@ export const AdDetailsPage = () => {
 			setIsSoldModalOpen(false)
 		
 			await queryClient.clear()
+			sessionStorage.removeItem('feed_scroll')
 			sessionStorage.setItem('adSold', 'true')
 			navigate(-1)
 		} catch (e) {

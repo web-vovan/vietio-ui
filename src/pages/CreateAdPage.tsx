@@ -121,11 +121,13 @@ export const CreateAdPage = () => {
 				throw new Error('save error')
 			}
 
-			await response.json()
+			const data = await response.json()
+			const uuid = data.uuid
 
 			await queryClient.clear()
+			sessionStorage.removeItem('feed_scroll')
 
-			navigate('/', { replace: true })
+			navigate(`/ads/${uuid}`, { replace: true })
 		} catch (error) {
 			showSnackbar('error', 'Ошибка', 'Не удалось опубликовать объявление')
 		} finally {
