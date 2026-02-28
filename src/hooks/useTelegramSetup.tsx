@@ -7,12 +7,13 @@ export const useTelegramSetup = () => {
 	useEffect(() => {
 		const tg = window.Telegram?.WebApp
 		if (!tg) return
-		
-		// FALLBACK для старых версий (или если метод недоступен)
-		// Если мы не можем отключить свайп, мы хотя бы включим подтверждение закрытия,
-		// чтобы пользователь случайно не закрыл форму.
-		if (typeof tg.enableClosingConfirmation === 'function') {
-			tg.enableClosingConfirmation()
-		}
+
+		tg.ready()
+		tg.expand()
+
+		// @ts-expect-error Telegram API method may be missing in types
+		tg.disableVerticalSwipes?.()
+
+		tg.enableClosingConfirmation?.()
 	}, [])
 }

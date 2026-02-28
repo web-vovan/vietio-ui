@@ -89,6 +89,7 @@ export const FeedPage = () => {
 
 	useEffect(() => {
 		const raw = sessionStorage.getItem('feed_scroll')
+		const scrollContainer = document.getElementById('root')
 		if (!raw) return
 
 		const saved = JSON.parse(raw)
@@ -97,9 +98,13 @@ export const FeedPage = () => {
 
 		// Восстанавливаем ТОЛЬКО если вернулись туда же
 		if (saved.path === currentPath && allAds.length > 0) {
-			requestAnimationFrame(() => {
-				window.scrollTo(0, saved.scrollY)
-			})
+			if (scrollContainer) {
+				// Восстанавливаем скролл контейнера
+				// setTimeout нужен, чтобы контент успел отрендериться
+				setTimeout(() => {
+					scrollContainer.scrollTop = saved.scrollY
+				}, 0) // Иногда нужно увеличить до 50-100мс, если данные грузятся из кэша
+			}
 		}
 	}, [allAds.length, location.pathname, location.search])
 
@@ -126,10 +131,12 @@ export const FeedPage = () => {
 	}
 
 	const handleAdClick = (item: Ad) => {
+		const scrollContainer = document.getElementById('root')
+
 		sessionStorage.setItem(
 			'feed_scroll',
 			JSON.stringify({
-				scrollY: window.scrollY,
+				scrollY: scrollContainer ? scrollContainer.scrollTop : 0,
 				path: location.pathname + location.search,
 			}),
 		)
