@@ -20,11 +20,13 @@ import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { ImageItem } from '../types'
 import { apiClient } from '../api/apiClient'
 import { AdDetailLoader } from '../components/AdDetailLoader'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const EditAdPage = () => {
 	const { uuid } = useParams()
 	const navigate = useNavigate()
 	const { showSnackbar } = useSnackbar()
+	const queryClient = useQueryClient()
 
 	const categoriesWithoutAll = categories.slice(1)
 
@@ -157,6 +159,8 @@ export const EditAdPage = () => {
 			})
 
 			if (!response.ok) throw new Error('Ошибка при обновлении')
+
+			await queryClient.clear()
 
 			sessionStorage.setItem('adUpdated', 'true')
 			navigate(-1)

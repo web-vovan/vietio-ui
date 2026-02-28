@@ -17,11 +17,13 @@ import { ErrorPlaceholder, ErrorType } from '../components/ErrorPlaceholder'
 import { AdDetail } from '../types'
 import { apiClient } from '../api/apiClient'
 import { Pencil, Trash, Check } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const AdDetailsPage = () => {
 	const navigate = useNavigate()
 	const { showSnackbar } = useSnackbar()
 	const { uuid } = useParams()
+	const queryClient = useQueryClient()
 
 	const [ad, setAd] = useState<AdDetail | null>(null)
 	const [isLoading, setIsLoading] = useState(true)
@@ -41,10 +43,12 @@ export const AdDetailsPage = () => {
 
 			if (response.status === 400) {
 				setErrorType('bad_request')
+				await queryClient.clear()
 				return
 			}
 			if (response.status === 404) {
 				setErrorType('not_found')
+				await queryClient.clear()
 				return
 			}
 			if (!response.ok) throw new Error('server error')
@@ -66,6 +70,7 @@ export const AdDetailsPage = () => {
 			}
 			setAd(adaptedAd)
 		} catch (err) {
+			await queryClient.clear()
 			setErrorType('server_error')
 		} finally {
 			setIsLoading(false)
@@ -93,6 +98,8 @@ export const AdDetailsPage = () => {
 
 			setIsDeleteModalOpen(false)
 			sessionStorage.setItem('adDeleted', 'true')
+
+			await queryClient.clear()
 			navigate(-1)
 		} catch (e) {
 			showSnackbar('error', 'Ошибка', 'Не удалось удалить объявление')
@@ -113,6 +120,7 @@ export const AdDetailsPage = () => {
 
 			setIsSoldModalOpen(false)
 		
+			await queryClient.clear()
 			sessionStorage.setItem('adSold', 'true')
 			navigate(-1)
 		} catch (e) {
@@ -144,7 +152,7 @@ export const AdDetailsPage = () => {
 				style={{
 					paddingTop: 'calc(61px + env(safe-area-inset-top))',
 					// Увеличили отступ снизу, так как кнопок стало больше
-					paddingBottom: 160,
+					paddingBottom: 80,
 				}}
 			>
 				<ImageGallery images={ad.images || []} />

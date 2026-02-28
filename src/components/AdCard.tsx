@@ -6,15 +6,24 @@ import { formatPrice } from '../helpers/helper'
 
 type AdCardProps = {
 	item: Ad
+	onClick?: (item: Ad) => void
 }
 
-export const AdCard = ({ item }: AdCardProps) => {
+export const AdCard = ({ item, onClick }: AdCardProps) => {
 	const navigate = useNavigate()
+
+	const handleClick = () => {
+		if (onClick) {
+			onClick(item)
+		} else {
+			navigate(`/ads/${item.uuid}`)
+		}
+	}
 
 	return (
 		<Card
 			key={item.uuid}
-			onClick={() => navigate(`/ads/${item.uuid}`)}
+			onClick={handleClick}
 			style={{
 				display: 'flex',
 				flexDirection: 'column',

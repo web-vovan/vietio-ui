@@ -13,10 +13,12 @@ import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../api/apiClient';
 import { AdRulesInfo } from '../components/AdRulesInfo';
 import { List, Section } from '@telegram-apps/telegram-ui';
+import { useQueryClient } from '@tanstack/react-query'
 
 export const CreateAdPage = () => {
 	const navigate = useNavigate()
 	const { showSnackbar } = useSnackbar()
+	const queryClient = useQueryClient()
 
 	const categoriesWithoutAll = categories.slice(1)
 
@@ -121,8 +123,9 @@ export const CreateAdPage = () => {
 
 			await response.json()
 
-			sessionStorage.setItem('adCreated', 'true')
-			navigate(-1)
+			await queryClient.clear()
+
+			navigate('/', { replace: true })
 		} catch (error) {
 			showSnackbar('error', 'Ошибка', 'Не удалось опубликовать объявление')
 		} finally {
