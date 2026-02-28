@@ -4,6 +4,8 @@ import { IconButton } from '@telegram-apps/telegram-ui'
 import useEmblaCarousel from 'embla-carousel-react'
 import { useSpring, animated } from '@react-spring/web'
 import { useDrag } from '@use-gesture/react'
+// 1. Импортируем компоненты зума
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 
 interface ImageGalleryProps {
 	images: string[]
@@ -12,6 +14,9 @@ interface ImageGalleryProps {
 export const ImageGallery = ({ images }: ImageGalleryProps) => {
 	const [activeIndex, setActiveIndex] = useState(0)
 	const [isFullScreen, setIsFullScreen] = useState(false)
+
+	// Состояние: увеличена ли текущая картинка
+	const [isZoomed, setIsZoomed] = useState(false)
 
 	// --- EMBLA: Маленькая галерея ---
 	const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -27,11 +32,15 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 		containScroll: 'trimSnaps',
 		duration: 80,
 		dragFree: false,
+		// Отключаем свайп слайдов, если картинка увеличена
+		watchDrag: !isZoomed,
 	})
 
 	const onSelect = useCallback((api: any) => {
 		if (!api) return
 		setActiveIndex(api.selectedScrollSnap())
+		// При смене слайда всегда сбрасываем зум (логика внутри слайда сработает отдельно)
+		setIsZoomed(false)
 	}, [])
 
 	useEffect(() => {
@@ -42,11 +51,11 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 
 	useEffect(() => {
 		if (!fullScreenApi) return
+		fullScreenApi.reInit({ watchDrag: !isZoomed }) // Обновляем настройки Embla при зуме
 		fullScreenApi.on('select', onSelect)
-	}, [fullScreenApi, onSelect])
+	}, [fullScreenApi, onSelect, isZoomed])
 
-	// --- ЖЕСТЫ И АНИМАЦИЯ ---
-	// Убрали scale из конфигурации
+	// --- ЖЕСТЫ И АНИМАЦИЯ (Закрытие) ---
 	const [{ y, bgOpacity }, api] = useSpring(() => ({
 		y: 0,
 		bgOpacity: 1,
@@ -55,8 +64,8 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 
 	const closeGallery = () => {
 		setIsFullScreen(false)
+		setIsZoomed(false)
 		setTimeout(() => {
-			// Сброс только позиции и прозрачности
 			api.start({ y: 0, bgOpacity: 1, immediate: true })
 		}, 300)
 	}
@@ -69,22 +78,23 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 			direction: [, dy],
 			cancel,
 		}) => {
+			// БЛОКИРУЕМ закрытие, если картинка увеличена
+			if (isZoomed) return
+
 			if (my < -50) cancel()
 
 			if (active) {
 				api.start({
 					y: my,
-					bgOpacity: Math.max(0, 1 - my / 500), // Только прозрачность
+					bgOpacity: Math.max(0, 1 - my / 500),
 					immediate: true,
 				})
 			} else {
 				// eslint-disable-next-line @typescript-eslint/no-extra-parens
 				if (my > 150 || (vy > 0.5 && dy > 0)) {
-					// Улетаем вниз без изменения размера
 					api.start({ y: window.innerHeight, bgOpacity: 0 })
 					closeGallery()
 				} else {
-					// Возврат на место
 					api.start({ y: 0, bgOpacity: 1 })
 				}
 			}
@@ -94,14 +104,17 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 			filterTaps: true,
 			from: () => [0, y.get()],
 			rubberband: true,
+			// Отключаем жест, если зум активен, чтобы не мешать панорамированию
+			enabled: !isZoomed,
 		},
 	)
 
 	const openFullScreen = (index: number) => {
 		setActiveIndex(index)
 		setIsFullScreen(true)
+		setIsZoomed(false)
 		if (emblaApi) emblaApi.scrollTo(index)
-		// Сброс при открытии
+		if (fullScreenApi) fullScreenApi.scrollTo(index)
 		api.start({ y: 0, bgOpacity: 1, immediate: true })
 	}
 
@@ -126,7 +139,7 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 
 	return (
 		<>
-			{/* --- МАЛЕНЬКАЯ ГАЛЕРЕЯ --- */}
+			{/* --- МАЛЕНЬКАЯ ГАЛЕРЕЯ (Без изменений) --- */}
 			<div
 				style={{
 					position: 'relative',
@@ -159,23 +172,12 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 									style={{
 										width: '100%',
 										height: '100%',
-										position: 'relative',
 										backgroundColor: 'var(--tgui--secondary_bg_color)',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
 									}}
 								>
-									<div
-										style={{
-											position: 'absolute',
-											opacity: 0.3,
-											color: 'var(--tgui--hint_color)',
-										}}
-									>
-										<Camera size={32} />
-									</div>
-
 									<img
 										src={src}
 										alt={`slide-${index}`}
@@ -184,7 +186,6 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 											maxWidth: '100%',
 											maxHeight: '100%',
 											objectFit: 'contain',
-											zIndex: 2,
 										}}
 									/>
 								</div>
@@ -192,8 +193,7 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 						))}
 					</div>
 				</div>
-
-				{/* Точки */}
+				{/* Индикаторы */}
 				{images.length > 1 && (
 					<div
 						style={{
@@ -217,7 +217,6 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 									borderRadius: '50%',
 									backgroundColor:
 										i === activeIndex ? '#fff' : 'rgba(255, 255, 255, 0.5)',
-									boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
 								}}
 							/>
 						))}
@@ -238,6 +237,7 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 						touchAction: 'none',
 					}}
 				>
+					{/* Фон */}
 					<animated.div
 						style={{
 							position: 'absolute',
@@ -251,6 +251,7 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 						}}
 					/>
 
+					{/* Кнопка закрытия */}
 					<animated.div
 						style={{
 							position: 'absolute',
@@ -274,15 +275,16 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 						</IconButton>
 					</animated.div>
 
+					{/* Слайдер */}
 					<animated.div
-						{...bind()}
+						{...bind()} // Хук закрытия висит на контейнере
 						className='embla embla--fullscreen'
 						ref={fullScreenRef}
 						style={{
 							height: '100%',
 							overflow: 'hidden',
-							y: y, // Только Y, без scale
-							touchAction: 'pan-x',
+							y: y,
+							touchAction: 'none', // Важно для жестов зума
 						}}
 					>
 						<div
@@ -299,24 +301,59 @@ export const ImageGallery = ({ images }: ImageGalleryProps) => {
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
+										// Важно разрешить выделение, чтобы зум работал корректно
 										userSelect: 'none',
 									}}
 								>
-									<img
-										src={src}
-										alt={`full-slide-${index}`}
-										style={{
-											maxWidth: '100%',
-											maxHeight: '100%',
-											objectFit: 'contain',
-											pointerEvents: 'none',
+									{/* Обертка для зума */}
+									<TransformWrapper
+										initialScale={1}
+										minScale={1}
+										maxScale={4} // Максимальный зум
+										// Отключаем панорамирование, если масштаб 1.
+										// Это позволяет событию свайпа "пройти сквозь" картинку к Embla или useDrag
+										panning={{ disabled: !isZoomed }}
+										// Pinch и DoubleClick работают всегда, чтобы инициировать зум
+										pinch={{ disabled: false }}
+										doubleClick={{ disabled: false }}
+										// Следим за трансформацией
+										onTransformed={e => {
+											// Если масштаб больше 1 (+ погрешность), считаем что зум активен
+											setIsZoomed(e.state.scale > 1.01)
 										}}
-									/>
+									>
+										{/* Компонент, который трансформируется */}
+										<TransformComponent
+											wrapperStyle={{
+												width: '100%',
+												height: '100%',
+											}}
+											contentStyle={{
+												width: '100%',
+												height: '100%',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+											}}
+										>
+											<img
+												src={src}
+												alt={`full-slide-${index}`}
+												style={{
+													maxWidth: '100%',
+													maxHeight: '100%',
+													objectFit: 'contain',
+													pointerEvents: 'auto', // Включаем события для картинки
+												}}
+											/>
+										</TransformComponent>
+									</TransformWrapper>
 								</div>
 							))}
 						</div>
 					</animated.div>
 
+					{/* Счетчик */}
 					<animated.div
 						style={{
 							position: 'absolute',
