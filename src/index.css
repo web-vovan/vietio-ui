@@ -4,13 +4,14 @@ body {
   background: var(--tg-theme-secondary-bg-color);
 }
 
-.form-field > div {
-  background: transparent !important;
-  border: none;
-  border-bottom: 1px solid var(--tgui--separator_color);
-  border-radius: 0;
+html, body {
+  overflow: hidden; /* Важно! */
+  height: 100%;
+  overscroll-behavior-y: none;
 }
 
-.form-field h6 {
-  background: transparent !important;
+#root {
+  height: 100%;
+  overflow-y: auto; /* Скролл внутри React контейнера */
+  -webkit-overflow-scrolling: touch;
 }

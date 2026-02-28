@@ -12,6 +12,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { SnackbarProvider } from './providers/SnackbarProvider'
 import { useTelegramBackButton } from './hooks/useTelegramBackButton'
 import { useIOSSwipeBack } from './hooks/useIOSSwipeBack'
+import { useTelegramSetup } from './hooks/useTelegramSetup'
 
 // 2. Создаем клиент (желательно вне компонента App, чтобы он не пересоздавался при рендере)
 const queryClient = new QueryClient({
@@ -55,6 +56,7 @@ const DeepLinkHandler = () => {
 }
 
 export const TelegramNavigation = ({ children }: PropsWithChildren) => {
+	useTelegramSetup()
 	useTelegramBackButton()
 	useIOSSwipeBack()
 	return <>{children}</>
