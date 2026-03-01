@@ -49,6 +49,9 @@ export const EditAdPage = () => {
 		images: false,
 	})
 
+	const MAX_TITLE_LENGTH = 100
+	const MAX_DESC_LENGTH = 1000
+
 	useEffect(() => {
 		const fetchAdData = async () => {
 			try {
@@ -118,6 +121,20 @@ export const EditAdPage = () => {
 			images.forEach(img => URL.revokeObjectURL(img.preview))
 		}
 	}, [])
+
+	const titleChange = (value: string) => {
+		if (value.length <= MAX_TITLE_LENGTH) {
+			setTitle(value)
+			if (errors.title) setErrors(prev => ({ ...prev, title: false }))
+		}
+	}
+
+	const descriptionChange = (value: string) => {
+		if (value.length <= MAX_DESC_LENGTH) {
+			setDescription(value)
+			if (errors.title) setErrors(prev => ({ ...prev, description: false }))
+		}
+	}
 
 	// --- СОХРАНЕНИЕ ИЗМЕНЕНИЙ ---
 	const handleSave = async () => {
@@ -223,11 +240,8 @@ export const EditAdPage = () => {
 								<AdTitleField
 									title={title}
 									error={errors.title}
-									onChange={val => {
-										setTitle(val)
-										if (errors.title)
-											setErrors(prev => ({ ...prev, title: false }))
-									}}
+									maxLength={MAX_TITLE_LENGTH}
+									onChange={titleChange}
 								/>
 								<AdPriceField price={price} onChange={val => setPrice(val)} />
 							</Section>
@@ -235,11 +249,8 @@ export const EditAdPage = () => {
 								<AdDescriptionField
 									description={description}
 									error={errors.description}
-									onChange={val => {
-										setDescription(val)
-										if (errors.description)
-											setErrors(prev => ({ ...prev, description: false }))
-									}}
+									maxLength={MAX_DESC_LENGTH}
+									onChange={descriptionChange}
 								/>
 							</Section>
 						</List>

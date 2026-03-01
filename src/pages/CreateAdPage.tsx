@@ -37,6 +37,9 @@ export const CreateAdPage = () => {
 	})
 	const [isLoading, setIsLoading] = useState(false)
 
+	const MAX_TITLE_LENGTH = 100
+	const MAX_DESC_LENGTH = 1000
+
 	const handleImagesChange = (newImages: ImageItem[]) => {
 		setImages(newImages)
 		if (newImages.length > 0 && errors.images) {
@@ -45,13 +48,17 @@ export const CreateAdPage = () => {
 	}
 
 	const titleChange = (value: string) => {
-		setTitle(value)
-		if (errors.title) setErrors(prev => ({ ...prev, title: false }))
+		if (value.length <= MAX_TITLE_LENGTH) {
+			setTitle(value)
+			if (errors.title) setErrors(prev => ({ ...prev, title: false }))
+		}
 	}
 
 	const descriptionChange = (value: string) => {
-		setDescription(value)
-		if (errors.description) setErrors(prev => ({ ...prev, description: false }))
+		if (value.length <= MAX_DESC_LENGTH) {
+			setDescription(value)
+			if (errors.title) setErrors(prev => ({ ...prev, description: false }))
+		}
 	}
 
 	const priceChange = (value: string) => {
@@ -183,11 +190,12 @@ export const CreateAdPage = () => {
 							currentCategoryId={categoryId}
 							onCategoryChange={id => setCategoryId(id)}
 						/>
-						
+
 						<AdTitleField
 							title={title}
 							error={errors.title}
 							onChange={titleChange}
+							maxLength={MAX_TITLE_LENGTH}
 						/>
 						<AdPriceField price={price} onChange={priceChange} />
 					</Section>
@@ -197,6 +205,7 @@ export const CreateAdPage = () => {
 							description={description}
 							error={errors.description}
 							onChange={descriptionChange}
+							maxLength={MAX_DESC_LENGTH}
 						/>
 					</Section>
 				</List>

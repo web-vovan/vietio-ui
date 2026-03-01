@@ -21,6 +21,7 @@ export const AdPriceField = ({ price, onChange }: AdPriceFieldProps) => {
 			before={<Coins size={24} color='var(--tgui--hint_color)' />}
 			placeholder='0'
 			type='text'
+			maxLength={11}
 			inputMode='numeric'
 			value={formatPriceInput(price)}
 			onChange={e => onChange(formatPriceInput(e.target.value))}
