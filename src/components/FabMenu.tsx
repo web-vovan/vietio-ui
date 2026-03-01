@@ -15,24 +15,15 @@ export const FabMenu = ({ showProfileBtn, useAnimation }: FabMenuProps) => {
 
 	useEffect(() => {
 		if (!useAnimation) return
-		
-		const scrollContainer = document.getElementById('root')
-
-		if (!scrollContainer) return
 
 		const handleScroll = () => {
-			const currentScrollY = scrollContainer.scrollTop
-
-			if (currentScrollY < 0) return
+			const currentScrollY = window.scrollY
 
 			if (currentScrollY < 10) {
 				setIsVisible(true)
 				lastScrollY.current = currentScrollY
 				return
 			}
-
-			if (Math.abs(currentScrollY - lastScrollY.current) < 5) return
-
 			if (currentScrollY > lastScrollY.current) {
 				setIsVisible(false)
 			} else {
@@ -42,10 +33,10 @@ export const FabMenu = ({ showProfileBtn, useAnimation }: FabMenuProps) => {
 			lastScrollY.current = currentScrollY
 		}
 
-		scrollContainer.addEventListener('scroll', handleScroll, { passive: true })
+		window.addEventListener('scroll', handleScroll)
 
 		return () => {
-			scrollContainer.removeEventListener('scroll', handleScroll)
+			window.removeEventListener('scroll', handleScroll)
 		}
 	}, [])
 

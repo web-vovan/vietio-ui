@@ -4,14 +4,13 @@ body {
   background: var(--tg-theme-secondary-bg-color);
 }
 
-html, body {
-  overflow: hidden; /* Важно! */
-  height: 100%;
-  overscroll-behavior-y: none;
+body {
+  margin: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
-  height: 100%;
-  overflow-y: auto; /* Скролл внутри React контейнера */
-  -webkit-overflow-scrolling: touch;
+  min-height: 100dvh;
 }
