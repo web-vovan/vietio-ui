@@ -214,7 +214,7 @@ export const FeedPage = () => {
 				<div style={{ height: 60 }} />
 			</div>
 
-			<FabMenu />
+			<FabMenu showProfileBtn={true} useAnimation={true} />
 		</>
 	)
 }

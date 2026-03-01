@@ -3,12 +3,19 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@telegram-apps/telegram-ui'
 import { Plus, User } from 'lucide-react'
 
-export const FabMenu = () => {
+type FabMenuProps = {
+	showProfileBtn: boolean
+	useAnimation: boolean
+}
+
+export const FabMenu = ({ showProfileBtn, useAnimation }: FabMenuProps) => {
 	const navigate = useNavigate()
 	const [isVisible, setIsVisible] = useState(true)
 	const lastScrollY = useRef(0)
 
 	useEffect(() => {
+		if (!useAnimation) return
+		
 		const scrollContainer = document.getElementById('root')
 
 		if (!scrollContainer) return
@@ -61,24 +68,26 @@ export const FabMenu = () => {
 				pointerEvents: isVisible ? 'auto' : 'none',
 			}}
 		>
-			<Button
-				mode='bezeled'
-				onClick={() => navigate('/profile')}
-				style={{
-					width: 48,
-					height: 48,
-					borderRadius: '50%',
-					padding: 0,
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
-					backgroundColor: 'var(--tgui--bg_color)',
-					color: 'var(--tgui--text_color)',
-				}}
-			>
-				<User size={24} />
-			</Button>
+			{showProfileBtn && (
+				<Button
+					mode='bezeled'
+					onClick={() => navigate('/profile')}
+					style={{
+						width: 48,
+						height: 48,
+						borderRadius: '50%',
+						padding: 0,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+						backgroundColor: 'var(--tgui--bg_color)',
+						color: 'var(--tgui--text_color)',
+					}}
+				>
+					<User size={24} />
+				</Button>
+			)}
 
 			<Button
 				mode='filled'

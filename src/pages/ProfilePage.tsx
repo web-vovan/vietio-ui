@@ -13,6 +13,7 @@ import { Loader } from '../components/Loader'
 import { Ad } from '../types'
 import { apiClient } from '../api/apiClient'
 import { EmptyHistory } from '../components/EmptyHistory'
+import { FabMenu } from '../components/FabMenu'
 
 type TabType = 'active' | 'sold'
 
@@ -159,6 +160,8 @@ export const ProfilePage = () => {
 						)}
 					</div>
 				)}
+				
+				<FabMenu showProfileBtn={false} useAnimation={false} />
 			</div>
 		</>
 	)
