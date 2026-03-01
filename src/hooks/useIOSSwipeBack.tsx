@@ -1,15 +1,13 @@
 import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useIsIOS } from './useIsIOS'
 
 export const useIOSSwipeBack = () => {
 	const navigate = useNavigate()
 	const location = useLocation()
+	const isIOS = useIsIOS()
 
 	useEffect(() => {
-		// Проверяем, что это iOS (опционально, можно оставить для всех)
-		const isIOS =
-			/iPad|iPhone|iPod/.test(navigator.userAgent)
-
 		if (!isIOS) return
 
 		let touchStartX = 0

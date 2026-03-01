@@ -1,4 +1,5 @@
 import { Caption, Textarea } from "@telegram-apps/telegram-ui"
+import { useIsIOS } from '../hooks/useIsIOS'
 
 type AdDescriptionFieldProps = {
 	description: string
@@ -16,12 +17,14 @@ export const AdDescriptionField = ({
 	const isLimitReached = description.length >= maxLength
 	const remaining = maxLength - description.length
 	const showCounter = remaining <= 100
+	const isIOS = useIsIOS()
 
 	return (
 		<div>
 			<Textarea
 				header='Описание'
 				value={description}
+				placeholder={isIOS ? 'Описание' : undefined}
 				onChange={e => onChange(e.target.value)}
 				maxLength={maxLength}
 				status={error ? 'error' : 'default'}
