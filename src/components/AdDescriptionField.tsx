@@ -1,5 +1,6 @@
 import { Caption, Textarea } from "@telegram-apps/telegram-ui"
 import { useIsIOS } from '../hooks/useIsIOS'
+import { useEffect } from "react"
 
 type AdDescriptionFieldProps = {
 	description: string
@@ -18,6 +19,26 @@ export const AdDescriptionField = ({
 	const remaining = maxLength - description.length
 	const showCounter = remaining <= 100
 	const isIOS = useIsIOS()
+
+	useEffect(() => {
+		if (!isIOS) return
+
+		const textarea = document.querySelector('textarea')
+
+		if (!textarea) return
+
+		const handleFocus = () => {
+			setTimeout(() => {
+				window.scrollTo(0, document.body.scrollHeight)
+			}, 350)
+		}
+
+		textarea.addEventListener('focus', handleFocus)
+
+		return () => {
+			textarea.removeEventListener('focus', handleFocus)
+		}
+	}, [isIOS])
 
 	return (
 		<div>
