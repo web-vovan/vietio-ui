@@ -18,10 +18,12 @@ export const useTelegramBackButton = () => {
 		}
 
 		const handleClick = () => {
-			if (window.history.length > 1) {
+			const canGoBack = window.history.state && window.history.state.idx > 0
+
+			if (canGoBack) {
 				navigate(-1)
 			} else {
-				tg.close()
+				navigate('/', { replace: true })
 			}
 		}
 
