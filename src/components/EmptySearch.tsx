@@ -1,28 +1,27 @@
 import { Button, Placeholder } from '@telegram-apps/telegram-ui'
 import { SearchX } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { Text } from '@telegram-apps/telegram-ui'
 
 export const EmptySearch = () => {
 	const navigate = useNavigate()
 
 	return (
-		<Placeholder
-			
-		>
-			<div
+		<Placeholder>
+			<div style={{ marginBottom: 16 }}>
+				<SearchX size={48} color='var(--tgui--hint_color)' />
+			</div>
+
+			<Text
+				weight='2'
 				style={{
-					width: 100,
-					height: 100,
-					borderRadius: '50%',
-					backgroundColor: 'var(--tgui--secondary_bg_color)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
+					fontSize: 20,
 					marginBottom: 8,
+					color: 'var(--tgui--hint_color)',
 				}}
 			>
-				<SearchX size={48} color='var(--tgui--hint_color)' strokeWidth={1.5} />
-			</div>
+				Пока нет товаров
+			</Text>
 
 			<Button
 				size='m'

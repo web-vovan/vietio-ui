@@ -35,6 +35,8 @@ export const AdDetailsPage = () => {
 	const [isSoldModalOpen, setIsSoldModalOpen] = useState(false)
 	const [isMarkingSold, setIsMarkingSold] = useState(false)
 
+	const [isFavorite, setIsFavorite] = useState(false)
+
 	const fetchAdDetails = async () => {
 		try {
 			setIsLoading(true)
@@ -57,7 +59,6 @@ export const AdDetailsPage = () => {
 
 			const rawData = await response.json()
 
-			// ... твой маппинг данных ...
 			const adaptedAd: AdDetail = {
 				uuid: rawData.uuid,
 				title: rawData.title,
@@ -66,11 +67,13 @@ export const AdDetailsPage = () => {
 				city: rawData.city,
 				description: rawData.description,
 				is_owner: rawData.is_owner,
+				is_favorite: rawData.is_favorite,
 				owner_username: rawData.owner_username,
 				images: rawData.images,
 				created_at: rawData.created_at,
 			}
 			setAd(adaptedAd)
+			setIsFavorite(rawData.is_favorite)
 		} catch (err) {
 			await queryClient.clear()
 			sessionStorage.removeItem('feed_scroll')
@@ -140,6 +143,29 @@ export const AdDetailsPage = () => {
 		}
 	}
 
+	const handleToggleFavorite = async () => {
+		if (!uuid) return
+
+		try {
+			const response = await apiClient(`/api/ads/${uuid}/favorite`, {
+				method: isFavorite ? 'DELETE' : 'POST',
+			})
+
+			if (!response.ok) throw new Error()
+
+			setIsFavorite(prev => !prev)
+
+			showSnackbar(
+				'success',
+				isFavorite ? 'Удалено из избранного' : 'Добавлено в избранное',
+			)
+		} catch {
+			showSnackbar('error', 'Ошибка', 'Не удалось обновить избранное')
+		} finally {
+
+		}
+	}
+
 	if (isLoading) {
 		return <AdDetailLoader />
 	}
@@ -156,11 +182,15 @@ export const AdDetailsPage = () => {
 
 	return (
 		<>
-			<AdDetailHeader uuid={uuid} title={ad?.title} />
+			<AdDetailHeader
+				uuid={uuid}
+				title={ad?.title}
+				isFavorite={isFavorite}
+				onToggleFavorite={handleToggleFavorite}
+			/>
 			<div
 				style={{
 					paddingTop: 'calc(61px + env(safe-area-inset-top))',
-					// Увеличили отступ снизу, так как кнопок стало больше
 					paddingBottom: 80,
 				}}
 			>

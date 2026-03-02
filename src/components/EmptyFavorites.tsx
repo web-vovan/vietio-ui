@@ -1,8 +1,8 @@
 import React from 'react'
-import { PiggyBank } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { Text } from '@telegram-apps/telegram-ui'
 
-export const EmptyHistory = () => {
+export const EmptyFavorites = () => {
 	return (
 		<div
 			style={{
@@ -15,18 +15,18 @@ export const EmptyHistory = () => {
 			}}
 		>
 			<div style={{ marginBottom: 16 }}>
-				<PiggyBank size={48} color='var(--tgui--hint_color)' />
+				<Heart size={48} color='var(--tgui--hint_color)' />
 			</div>
 
 			<Text
 				weight='2'
 				style={{
-					fontSize: 20,
+					fontSize: 18,
 					marginBottom: 8,
 					color: 'var(--tgui--hint_color)',
 				}}
 			>
-				Пока продаж не было
+				В избранном пока пусто
 			</Text>
 		</div>
 	)

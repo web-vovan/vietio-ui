@@ -1,5 +1,5 @@
 import { FixedLayout, IconButton } from '@telegram-apps/telegram-ui'
-import { ChevronLeft, Share2 } from 'lucide-react'
+import { ChevronLeft, Heart, Share2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const BOT_USERNAME = 'vietio_bot'; // Имя бота без @
@@ -8,9 +8,16 @@ const APP_NAME = 'app';            // Short name приложения из BotFa
 interface AdDetailHeaderProps {
 	uuid?: string
 	title?: string
+	isFavorite?: boolean
+	onToggleFavorite?: () => void
 }
 
-export const AdDetailHeader = ({ uuid, title }: AdDetailHeaderProps) => {
+export const AdDetailHeader = ({
+	uuid,
+	title,
+	isFavorite,
+	onToggleFavorite,
+}: AdDetailHeaderProps) => {
 	const navigate = useNavigate()
 
 	const handleShare = () => {
@@ -63,6 +70,26 @@ export const AdDetailHeader = ({ uuid, title }: AdDetailHeaderProps) => {
 			</IconButton>
 
 			<div style={{ display: 'flex', gap: 16 }}>
+				<IconButton
+					mode='plain'
+					size='l'
+					onClick={onToggleFavorite}
+					disabled={!uuid}
+					style={{ width: 44, height: 44 }}
+				>
+					<Heart
+						size={24}
+						color={
+							isFavorite
+								? 'var(--tgui--destructive_text_color)'
+								: 'var(--tgui--link_color)'
+						}
+						fill={isFavorite ? 'currentColor' : 'none'}
+						stroke={isFavorite ? 'none' : 'var(--tgui--link_color)'}
+						strokeWidth={2}
+					/>
+				</IconButton>
+
 				<IconButton
 					mode='plain'
 					size='l'

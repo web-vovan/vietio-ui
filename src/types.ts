@@ -6,6 +6,7 @@ export interface Ad {
 	price: number
 	currency: string
 	city: string
+	status: string
 	image?: string
 	category_id: number
 	created_at: string
@@ -19,6 +20,7 @@ export interface AdDetail {
 	city: string
 	description: string
 	is_owner?: boolean,
+	is_favorite?: boolean,
 	owner_username: string,
 	images: string[]
 	created_at: string
